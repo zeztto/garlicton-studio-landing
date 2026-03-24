@@ -3,6 +3,7 @@ import { Services } from '@/components/sections/Services'
 import { About } from '@/components/sections/About'
 import { Portfolio } from '@/components/sections/Portfolio'
 import { StudioGallery } from '@/components/sections/StudioGallery'
+import { Contact } from '@/components/sections/Contact'
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
@@ -13,6 +14,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <About locale={locale} />
       <Portfolio locale={locale} />
       <StudioGallery locale={locale} />
+      <Contact locale={locale} />
     </>
   )
 }
