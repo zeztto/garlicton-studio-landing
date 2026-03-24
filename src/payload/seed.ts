@@ -77,8 +77,8 @@ const portfolioData = [
   },
   {
     title_ko: '도굴 - If These Bodies Could Talk',
-    title_en: 'Dogul - If These Bodies Could Talk',
-    artist: 'Dogul (도굴)',
+    title_en: 'Doguul - If These Bodies Could Talk',
+    artist: 'Doguul (도굴)',
     genre: 'Metal',
     description_ko: '제21회 한국대중음악상 노미네이트',
     description_en: '21st KMA Nominee',
@@ -300,7 +300,7 @@ export async function seed(payload: Payload): Promise<void> {
           description_ko:
             '도굴 EP 《If These Bodies Could Talk》 믹싱/마스터링 — 제21회 한국대중음악상 노미네이트',
           description_en:
-            'Dogul EP "If These Bodies Could Talk" Mixing/Mastering — 21st KMA Nominee',
+            'Doguul EP "If These Bodies Could Talk" Mixing/Mastering — 21st KMA Nominee',
         },
         {
           period: '2025',
