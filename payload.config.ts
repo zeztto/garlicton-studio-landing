@@ -13,6 +13,7 @@ import { Inquiries } from './src/payload/collections/Inquiries'
 import { Pages } from './src/payload/collections/Pages'
 import { SiteSettings } from './src/payload/globals/SiteSettings'
 import { About } from './src/payload/globals/About'
+import { seed } from './src/payload/seed'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -23,6 +24,9 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+  },
+  onInit: async (payload) => {
+    await seed(payload)
   },
   collections: [
     {
