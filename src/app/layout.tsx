@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import React from 'react'
 
 export const metadata: Metadata = {
   title: 'Garlicton Studio',
@@ -14,11 +15,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html lang="ko">
-      <body>
-        {children}
-      </body>
-    </html>
-  )
+  return children as React.JSX.Element
 }

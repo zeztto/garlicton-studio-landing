@@ -1,0 +1,10 @@
+[    1353ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rP (https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:34103)
+    at rN (https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:35148)
+    at https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:115793
+    at im (https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:120140)
+    at ic (https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:112451)
+    at https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:108438
+    at u5 (https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:108539)
+    at iH (https://garlicton.com/_next/static/chunks/4bd1b696-601ec057a6e2b629.js:1:129983)
+    at MessagePort.w (https://garlicton.com/_next/static/chunks/1684-92e44d2ee4c56978.js:1:55003)
