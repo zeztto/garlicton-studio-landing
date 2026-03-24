@@ -10,10 +10,11 @@ import { getPayloadClient } from '@/lib/payload'
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const payload = await getPayloadClient()
-  const settings = await payload.findGlobal({ slug: 'site-settings' })
+  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
 
   const title = locale === 'ko' ? settings.seo?.metaTitle_ko : settings.seo?.metaTitle_en
   const description = locale === 'ko' ? settings.seo?.metaDescription_ko : settings.seo?.metaDescription_en
+  const ogImage = settings.seo?.ogImage as { url?: string } | null
 
   return {
     title,
@@ -22,8 +23,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       canonical: `/${locale}`,
       languages: { ko: '/ko', en: '/en' },
     },
-    openGraph: { title: title || '', description: description || '', type: 'website' },
-    twitter: { card: 'summary_large_image', title: title || '', description: description || '' },
+    openGraph: {
+      title: title || '',
+      description: description || '',
+      type: 'website',
+      ...(ogImage?.url ? { images: [{ url: ogImage.url }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: title || '',
+      description: description || '',
+      ...(ogImage?.url ? { images: [ogImage.url] } : {}),
+    },
   }
 }
 

@@ -4,7 +4,8 @@ export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: '사이트 설정',
   fields: [
-    { name: 'logo', type: 'upload', relationTo: 'media' },
+    { name: 'logo', type: 'upload', relationTo: 'media', label: '로고' },
+    { name: 'heroBackground', type: 'upload', relationTo: 'media', label: '히어로 배경 이미지' },
     { name: 'tagline_ko', type: 'text', label: '태그라인 (한국어)', defaultValue: '더 멀리, 더 깊이있게' },
     { name: 'tagline_en', type: 'text', label: 'Tagline (English)', defaultValue: 'Further and Deeper' },
     { name: 'subtitle_ko', type: 'textarea', label: '서브카피 (한국어)', defaultValue: '음악에 쏟아부은 시간과 노력은 결코 헛되지 않으며,\n의미 있는 결과로 이어진다고 생각합니다.\n아티스트의 비전을 현실로 만들고,\n미래로 나아갈 수 있도록 함께 돕겠습니다.' },

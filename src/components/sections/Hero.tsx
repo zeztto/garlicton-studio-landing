@@ -10,16 +10,22 @@ export async function Hero({ locale }: HeroProps) {
 
   let tagline = ''
   let subtitle = ''
+  let heroBgUrl = '/images/instagram/studio-08.jpg'
 
   try {
     const payload = await getPayloadClient()
-    const settings = await payload.findGlobal({ slug: 'site-settings' })
+    const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
     tagline = locale === 'ko'
       ? (settings.tagline_ko ?? '더 멀리, 더 깊이있게')
       : (settings.tagline_en ?? 'Further and Deeper')
     subtitle = locale === 'ko'
       ? (settings.subtitle_ko ?? '')
       : (settings.subtitle_en ?? '')
+    // Use CMS hero background if available
+    const heroBg = settings.heroBackground as { url?: string } | null
+    if (heroBg?.url) {
+      heroBgUrl = heroBg.url
+    }
   } catch {
     tagline = locale === 'ko' ? '더 멀리, 더 깊이있게' : 'Further and Deeper'
     subtitle = locale === 'ko'
@@ -35,7 +41,7 @@ export async function Hero({ locale }: HeroProps) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(/images/instagram/studio-08.jpg)',
+          backgroundImage: `url(${heroBgUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'brightness(0.15)',

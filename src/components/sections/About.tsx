@@ -18,10 +18,11 @@ export async function About({ locale }: AboutProps) {
   let name = locale === 'ko' ? '이주희' : 'Lee Ju Hee'
   let title = 'Founder / Producer / Mixer / Mastering Engineer'
   let career: CareerItem[] = []
+  let profileImageUrl = '/images/instagram/profile.jpg'
 
   try {
     const payload = await getPayloadClient()
-    const data = await payload.findGlobal({ slug: 'about' })
+    const data = await payload.findGlobal({ slug: 'about', depth: 1 })
     name = locale === 'ko'
       ? (data.name_ko ?? name)
       : (data.name_en ?? name)
@@ -29,6 +30,10 @@ export async function About({ locale }: AboutProps) {
       ? (data.title_ko ?? title)
       : (data.title_en ?? title)
     career = (data.career ?? []) as CareerItem[]
+    const profileImg = data.profileImage as { url?: string } | null
+    if (profileImg?.url) {
+      profileImageUrl = profileImg.url
+    }
   } catch {
     // Fall through to defaults
   }
@@ -79,7 +84,7 @@ export async function About({ locale }: AboutProps) {
             {/* Profile image */}
             <div className="w-24 h-24 rounded-full overflow-hidden mb-2 border border-white/10">
               <img
-                src="/images/instagram/profile.jpg"
+                src={profileImageUrl}
                 alt={name}
                 className="w-full h-full object-cover"
               />
