@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Oswald, Inter } from 'next/font/google'
 import './frontend.css'
 
@@ -12,6 +13,15 @@ const inter = Inter({
   variable: '--font-inter',
   display: 'swap',
 })
+
+export const metadata: Metadata = {
+  title: 'Garlicton Studio',
+  description: 'Metal music production studio',
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-icon.png',
+  },
+}
 
 export default function FrontendLayout({
   children,
