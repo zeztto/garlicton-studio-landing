@@ -42,3 +42,10 @@ next-env.d.ts
 
 # uploads
 /public/media
+
+# playwright
+.playwright-mcp/
+*.jpeg
+
+# specs/plans (development only)
+docs/superpowers/

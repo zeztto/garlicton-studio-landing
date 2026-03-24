@@ -125,20 +125,11 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
         {images.length > 0 ? (
           <StudioGalleryClient images={images} />
         ) : (
-          <StudioGalleryClient images={[
-            { src: '/images/instagram/studio-01.jpg', alt: '스튜디오 장비' },
-            { src: '/images/instagram/studio-02.jpg', alt: '스튜디오 장비' },
-            { src: '/images/instagram/studio-04.jpg', alt: '스튜디오' },
-            { src: '/images/instagram/studio-05.jpg', alt: '스튜디오' },
-            { src: '/images/instagram/studio-06.jpg', alt: '스튜디오' },
-            { src: '/images/instagram/studio-08.jpg', alt: '스튜디오' },
-            { src: '/images/instagram/studio-09.jpg', alt: '스튜디오' },
-            { src: '/images/instagram/studio-11.jpg', alt: '스튜디오' },
-            { src: '/images/instagram/gear-01.jpg', alt: '장비' },
-            { src: '/images/instagram/gear-02.jpg', alt: '장비' },
-            { src: '/images/instagram/session-01.jpg', alt: '세션' },
-            { src: '/images/instagram/session-02.jpg', alt: '세션' },
-          ]} />
+          <div className="text-center py-16">
+            <p className="text-[#999999] text-sm">
+              {locale === 'ko' ? 'CMS에서 갤러리 사진을 추가해주세요.' : 'Add gallery photos from the CMS.'}
+            </p>
+          </div>
         )}
       </div>
     </section>

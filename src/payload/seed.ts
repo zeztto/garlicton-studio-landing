@@ -1,4 +1,6 @@
 import type { Payload } from 'payload'
+import path from 'path'
+import fs from 'fs'
 
 const servicesData = [
   {
@@ -219,7 +221,14 @@ export async function seed(payload: Payload): Promise<void> {
   })
 
   if (existingServices.totalDocs > 0) {
-    payload.logger.info('Seed data already exists. Skipping.')
+    // Check if gallery needs seeding
+    const existingGallery = await payload.find({ collection: 'gallery', limit: 1 })
+    if (existingGallery.totalDocs === 0) {
+      payload.logger.info('Services exist but gallery is empty. Seeding gallery...')
+      await seedGallery(payload)
+    } else {
+      payload.logger.info('Seed data already exists. Skipping.')
+    }
     return
   }
 
@@ -333,5 +342,67 @@ export async function seed(payload: Payload): Promise<void> {
   })
   payload.logger.info('SiteSettings global seeded.')
 
+  await seedGallery(payload)
+
   payload.logger.info('Seeding complete.')
+}
+
+async function seedGallery(payload: Payload): Promise<void> {
+  payload.logger.info('Seeding gallery images...')
+  const galleryImages = [
+    { file: 'studio-01.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
+    { file: 'studio-02.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
+    { file: 'studio-04.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+    { file: 'studio-05.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+    { file: 'studio-06.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+    { file: 'studio-08.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+    { file: 'studio-09.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+    { file: 'studio-11.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+    { file: 'gear-01.jpg', caption_ko: '장비', caption_en: 'Gear' },
+    { file: 'gear-02.jpg', caption_ko: '장비', caption_en: 'Gear' },
+    { file: 'session-01.jpg', caption_ko: '세션', caption_en: 'Session' },
+    { file: 'session-02.jpg', caption_ko: '세션', caption_en: 'Session' },
+  ]
+
+  const imgDir = path.resolve(process.cwd(), 'public/images/instagram')
+
+  for (let i = 0; i < galleryImages.length; i++) {
+    const img = galleryImages[i]
+    const filePath = path.join(imgDir, img.file)
+
+    if (!fs.existsSync(filePath)) {
+      payload.logger.info(`Skipping ${img.file} — file not found`)
+      continue
+    }
+
+    try {
+      const fileBuffer = fs.readFileSync(filePath)
+      const media = await payload.create({
+        collection: 'media',
+        data: {
+          alt_ko: img.caption_ko,
+          alt_en: img.caption_en,
+        },
+        file: {
+          data: fileBuffer,
+          name: img.file,
+          mimetype: 'image/jpeg',
+          size: fileBuffer.length,
+        },
+      })
+
+      await payload.create({
+        collection: 'gallery',
+        data: {
+          image: media.id,
+          caption_ko: img.caption_ko,
+          caption_en: img.caption_en,
+          sortOrder: i + 1,
+        },
+      })
+    } catch (err) {
+      payload.logger.error(`Failed to upload ${img.file}: ${err}`)
+    }
+  }
+  payload.logger.info('Gallery images seeded.')
 }

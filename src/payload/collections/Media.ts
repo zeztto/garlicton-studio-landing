@@ -4,6 +4,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   upload: {
     mimeTypes: ['image/*'],
+    staticDir: 'public/media',
   },
   fields: [
     {
