@@ -8,7 +8,9 @@
   },
   "hero": {
     "cta": "문의하기",
-    "specialist": "K-Metal Music Specialist"
+    "specialist": "K-Metal Music Specialist",
+    "intro": "보컬 레코딩부터 악기 녹음, 믹싱, 마스터링까지 음악 제작의 전 여정을 함께합니다.",
+    "philosophy": "거창하지 않아도 괜찮습니다. 중요한 건 당신의 음악이 제대로 표현되는 것입니다."
   },
   "services": {
     "title": "작업 프로세스",
@@ -18,6 +20,7 @@
     "title": "The Staff",
     "subtitle": "최고의 테이크가 최고의 결과물을 만든다.",
     "experience": "15년 이상의 메탈 음악 산업 경력",
+    "accompany": "경험 많은 엔지니어가 세션의 시작부터 최종 마스터까지 전 과정을 함께합니다.",
     "studioName": "Garlicton"
   },
   "portfolio": {
@@ -27,7 +30,7 @@
   "studio": {
     "title": "The Studio",
     "subtitle": "더 나은 결과를 위해 함께 고민하고 도전하는 과정을 중요하게 생각합니다.",
-    "description": "갈릭톤 스튜디오는 강화도에 자리한 메탈 음악 전문 레코딩 스튜디오입니다. 주택형 구조의 프라이빗 공간에서 시간 압박 없이 창작에 집중할 수 있습니다.",
+    "description": "갈릭톤 스튜디오는 강화도에 자리한 메탈 음악 전문 레코딩 스튜디오입니다. 보컬 레코딩부터 악기 녹음, 믹싱, 마스터링까지 음악 제작의 전 여정을 함께합니다.",
     "authentic": "진정성 있는 사운드",
     "authenticDesc": "메탈 음악의 본질을 이해하는 엔지니어가 날것의 에너지와 디테일을 정확하게 구현합니다.",
     "comfortable": "편안한 작업 환경",

@@ -69,6 +69,14 @@ export async function Hero({ locale }: HeroProps) {
           {tagline}
         </p>
 
+        {/* Intro line */}
+        <p
+          className="text-[clamp(0.85rem,1.5vw,1rem)] font-light text-[#FFFFFFB3] leading-[1.9] max-w-2xl"
+          style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
+        >
+          {t('intro')}
+        </p>
+
         {/* Thin divider */}
         <div className="w-12 h-px bg-white/15" />
 
@@ -83,6 +91,14 @@ export async function Hero({ locale }: HeroProps) {
             ))}
           </div>
         )}
+
+        {/* Philosophy statement */}
+        <p
+          className="text-[clamp(0.9rem,1.6vw,1.1rem)] font-normal text-[#F0F0F0] tracking-wide max-w-xl"
+          style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
+        >
+          {t('philosophy')}
+        </p>
 
         {/* CTA button */}
         <a

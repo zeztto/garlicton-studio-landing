@@ -94,6 +94,12 @@ export async function About({ locale }: AboutProps) {
             >
               {t('experience')}
             </p>
+            <p
+              className="text-[clamp(0.8rem,1.2vw,0.875rem)] text-[#FFFFFFB3] font-light leading-[1.8] mt-2"
+              style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
+            >
+              {t('accompany')}
+            </p>
 
             {/* KMA highlights */}
             <div className="mt-4 flex flex-col gap-3">

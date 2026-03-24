@@ -8,7 +8,9 @@
   },
   "hero": {
     "cta": "Get in Touch",
-    "specialist": "K-Metal Music Specialist"
+    "specialist": "K-Metal Music Specialist",
+    "intro": "From vocal and instrument recording to mixing and mastering — we walk the entire journey of music production with you.",
+    "philosophy": "It doesn't have to be grand. What matters is that your music is expressed the way it deserves."
   },
   "services": {
     "title": "Our Process",
@@ -18,6 +20,7 @@
     "title": "The Staff",
     "subtitle": "The best take creates the best result.",
     "experience": "15+ years in the metal music industry",
+    "accompany": "An experienced engineer accompanies you from the first session to the final master.",
     "studioName": "Garlicton"
   },
   "portfolio": {
@@ -27,7 +30,7 @@
   "studio": {
     "title": "The Studio",
     "subtitle": "We value the process of working together and pushing for better results.",
-    "description": "Garlicton Studio is a metal music recording studio located on Ganghwa Island. In our private, house-style space, you can focus on creating without time pressure.",
+    "description": "Garlicton Studio is a metal music recording studio located on Ganghwa Island. From vocal and instrument recording to mixing and mastering — we walk the entire journey of music production with you.",
     "authentic": "Authentic Sound",
     "authenticDesc": "An engineer who understands the essence of metal music precisely captures raw energy and detail.",
     "comfortable": "Comfortable Environment",
