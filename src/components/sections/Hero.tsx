@@ -31,12 +31,22 @@ export async function Hero({ locale }: HeroProps) {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
+      {/* Background image from Instagram */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/instagram/studio-08.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'brightness(0.15)',
+        }}
+      />
       {/* Subtle radial gradient overlay for depth */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,0,0,0.06) 0%, transparent 70%)',
+            'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,0,0,0.08) 0%, transparent 70%)',
         }}
       />
 

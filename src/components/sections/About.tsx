@@ -74,8 +74,16 @@ export async function About({ locale }: AboutProps) {
 
         {/* Engineer intro */}
         <div className="mb-16 grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-20 items-start">
-          {/* Left: name + title */}
+          {/* Left: name + title + profile image */}
           <div className="flex flex-col gap-4">
+            {/* Profile image */}
+            <div className="w-24 h-24 rounded-full overflow-hidden mb-2 border border-white/10">
+              <img
+                src="/images/instagram/profile.jpg"
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <h3
               className="text-[clamp(2rem,4vw,3rem)] font-light text-[#F0F0F0] leading-tight tracking-wide"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
