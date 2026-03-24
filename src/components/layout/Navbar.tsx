@@ -64,7 +64,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="font-[family-name:var(--font-inter)] text-[13px] tracking-wider text-[#FFFFFFB3] hover:text-[#F0F0F0] transition-colors duration-200"
+                className="font-[family-name:var(--font-inter)] text-[13px] tracking-wider text-[#FFFFFFDD] hover:text-[#F0F0F0] transition-colors duration-200"
               >
                 {link.label}
               </a>
@@ -74,7 +74,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden text-[#FFFFFFB3] hover:text-[#F0F0F0] transition-colors"
+            className="md:hidden text-[#FFFFFFDD] hover:text-[#F0F0F0] transition-colors"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >

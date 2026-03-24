@@ -17,7 +17,7 @@ export async function Contact({ locale }: ContactProps) {
         {/* Section heading */}
         <div className="mb-16">
           <p
-            className="text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA] mb-4"
+            className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             Contact
@@ -29,7 +29,7 @@ export async function Contact({ locale }: ContactProps) {
             {t('title')}
           </h2>
           <p
-            className="mt-4 text-[#AAAAAA] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
+            className="mt-4 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: fontBody }}
           >
             {t('subtitle')}
@@ -49,7 +49,7 @@ export async function Contact({ locale }: ContactProps) {
             <div className="flex gap-4 p-5 bg-[#1A1A1A] border border-[#8B0000]/30 rounded-md">
               <div className="w-1 flex-shrink-0 bg-[#8B0000] rounded-full" />
               <p
-                className="text-[#FFFFFFB3] font-light text-sm leading-[1.8]"
+                className="text-[#FFFFFFDD] font-light text-sm leading-[1.8]"
                 style={{ fontFamily: fontBody }}
               >
                 {t('reservation')}
@@ -61,7 +61,7 @@ export async function Contact({ locale }: ContactProps) {
               {/* Phone */}
               <div className="flex flex-col gap-1">
                 <p
-                  className="text-[11px] tracking-[0.25em] uppercase text-[#AAAAAA]"
+                  className="text-[11px] tracking-[0.25em] uppercase text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   Phone
@@ -78,7 +78,7 @@ export async function Contact({ locale }: ContactProps) {
               {/* Address */}
               <div className="flex flex-col gap-1">
                 <p
-                  className="text-[11px] tracking-[0.25em] uppercase text-[#AAAAAA]"
+                  className="text-[11px] tracking-[0.25em] uppercase text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   Address
@@ -90,7 +90,7 @@ export async function Contact({ locale }: ContactProps) {
                   인천 강화군 강화읍 북문길67번길 8-1
                 </p>
                 <p
-                  className="text-[#AAAAAA] font-light text-xs"
+                  className="text-[#CCCCCC] font-light text-xs"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   8-1 Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon
@@ -100,7 +100,7 @@ export async function Contact({ locale }: ContactProps) {
               {/* Instagram */}
               <div className="flex flex-col gap-1">
                 <p
-                  className="text-[11px] tracking-[0.25em] uppercase text-[#AAAAAA]"
+                  className="text-[11px] tracking-[0.25em] uppercase text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   Instagram

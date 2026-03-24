@@ -54,7 +54,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
         {/* Section heading */}
         <div className="mb-20">
           <p
-            className="text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA] mb-4"
+            className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             Studio
@@ -66,7 +66,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
             {t('title')}
           </h2>
           <p
-            className="mt-6 text-[#AAAAAA] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
+            className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
             {t('subtitle')}
@@ -79,7 +79,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
           <div className="flex flex-col gap-3">
             <div className="w-6 h-px bg-[#8B0000]" />
             <p
-              className="text-[#FFFFFFB3] font-light text-[clamp(0.875rem,1.3vw,0.95rem)] leading-[1.9]"
+              className="text-[#FFFFFFDD] font-light text-[clamp(0.875rem,1.3vw,0.95rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
               {t('description')}
@@ -96,7 +96,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               {t('authentic')}
             </h3>
             <p
-              className="text-[#AAAAAA] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
+              className="text-[#CCCCCC] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
               {t('authenticDesc')}
@@ -113,7 +113,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               {t('comfortable')}
             </h3>
             <p
-              className="text-[#AAAAAA] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
+              className="text-[#CCCCCC] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
               {t('comfortableDesc')}

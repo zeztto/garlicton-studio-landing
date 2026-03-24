@@ -98,7 +98,7 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
     >
       {/* Close button */}
       <button
-        className="absolute top-5 right-5 text-[#AAAAAA] hover:text-[#F0F0F0] transition-colors z-10 p-2"
+        className="absolute top-5 right-5 text-[#CCCCCC] hover:text-[#F0F0F0] transition-colors z-10 p-2"
         onClick={handleClose}
         aria-label="Close"
         style={{ fontFamily: 'var(--font-inter)' }}
@@ -110,7 +110,7 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
 
       {/* Image counter */}
       <div
-        className="absolute top-5 left-1/2 -translate-x-1/2 text-[12px] tracking-[0.2em] text-[#AAAAAA]"
+        className="absolute top-5 left-1/2 -translate-x-1/2 text-[12px] tracking-[0.2em] text-[#CCCCCC]"
         style={{ fontFamily: 'var(--font-inter)' }}
       >
         {current + 1} / {total}
@@ -119,7 +119,7 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
       {/* Prev button */}
       {total > 1 && (
         <button
-          className="absolute left-4 md:left-8 text-[#AAAAAA] hover:text-[#F0F0F0] transition-colors z-10 p-3"
+          className="absolute left-4 md:left-8 text-[#CCCCCC] hover:text-[#F0F0F0] transition-colors z-10 p-3"
           onClick={(e) => { e.stopPropagation(); goPrev() }}
           aria-label="Previous image"
         >
@@ -132,7 +132,7 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
       {/* Next button */}
       {total > 1 && (
         <button
-          className="absolute right-4 md:right-8 text-[#AAAAAA] hover:text-[#F0F0F0] transition-colors z-10 p-3"
+          className="absolute right-4 md:right-8 text-[#CCCCCC] hover:text-[#F0F0F0] transition-colors z-10 p-3"
           onClick={(e) => { e.stopPropagation(); goNext() }}
           aria-label="Next image"
         >
@@ -163,7 +163,7 @@ export function Lightbox({ images, initialIndex, onClose }: LightboxProps) {
         />
         {img.alt && (
           <p
-            className="absolute -bottom-8 left-0 right-0 text-center text-[11px] tracking-wider text-[#AAAAAA]"
+            className="absolute -bottom-8 left-0 right-0 text-center text-[11px] tracking-wider text-[#CCCCCC]"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             {img.alt}

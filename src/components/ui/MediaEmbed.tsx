@@ -49,7 +49,7 @@ export function MediaEmbed({ mediaType, embedUrl, title = '' }: MediaEmbedProps)
   if (!src) {
     return (
       <div
-        className="w-full aspect-video flex items-center justify-center bg-[#1A1A1A] text-[#AAAAAA] text-sm"
+        className="w-full aspect-video flex items-center justify-center bg-[#1A1A1A] text-[#CCCCCC] text-sm"
         style={{ fontFamily: 'var(--font-inter)' }}
       >
         Invalid media URL

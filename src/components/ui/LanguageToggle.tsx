@@ -29,7 +29,7 @@ export default function LanguageToggle() {
             className={`transition-colors duration-200 ${
               locale === l
                 ? 'text-[#F0F0F0]'
-                : 'text-[#FFFFFF4D] hover:text-[#FFFFFFB3]'
+                : 'text-[#FFFFFF4D] hover:text-[#FFFFFFDD]'
             }`}
           >
             {l.toUpperCase()}

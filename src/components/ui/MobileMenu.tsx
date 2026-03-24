@@ -51,7 +51,7 @@ export default function MobileMenu({ isOpen, onClose, links }: Props) {
       <div className="flex justify-end p-6">
         <button
           onClick={onClose}
-          className="text-[#FFFFFFB3] hover:text-[#F0F0F0] transition-colors"
+          className="text-[#FFFFFFDD] hover:text-[#F0F0F0] transition-colors"
           aria-label="Close menu"
         >
           <X size={24} />
@@ -64,7 +64,7 @@ export default function MobileMenu({ isOpen, onClose, links }: Props) {
           <button
             key={link.href}
             onClick={() => handleLinkClick(link.href)}
-            className="text-[#FFFFFFB3] hover:text-[#F0F0F0] transition-colors font-[family-name:var(--font-inter)] text-2xl tracking-widest uppercase"
+            className="text-[#FFFFFFDD] hover:text-[#F0F0F0] transition-colors font-[family-name:var(--font-inter)] text-2xl tracking-widest uppercase"
           >
             {link.label}
           </button>

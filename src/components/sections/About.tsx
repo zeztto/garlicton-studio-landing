@@ -53,7 +53,7 @@ export async function About({ locale }: AboutProps) {
         {/* Section label */}
         <div className="mb-20">
           <p
-            className="text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA] mb-4"
+            className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             {t('studioName')}
@@ -65,7 +65,7 @@ export async function About({ locale }: AboutProps) {
             {t('title')}
           </h2>
           <p
-            className="mt-6 text-[#AAAAAA] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic"
+            className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
             {t('subtitle')}
@@ -91,19 +91,19 @@ export async function About({ locale }: AboutProps) {
               {name}
             </h3>
             <p
-              className="text-[13px] text-[#AAAAAA] tracking-wide leading-[1.8]"
+              className="text-[13px] text-[#CCCCCC] tracking-wide leading-[1.8]"
               style={{ fontFamily: 'var(--font-inter)' }}
             >
               {title}
             </p>
             <p
-              className="text-[12px] text-[#AAAAAA] tracking-wider mt-1"
+              className="text-[12px] text-[#CCCCCC] tracking-wider mt-1"
               style={{ fontFamily: 'var(--font-inter)' }}
             >
               {t('experience')}
             </p>
             <p
-              className="text-[clamp(0.8rem,1.2vw,0.875rem)] text-[#FFFFFFB3] font-light leading-[1.8] mt-2"
+              className="text-[clamp(0.8rem,1.2vw,0.875rem)] text-[#FFFFFFDD] font-light leading-[1.8] mt-2"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
               {t('accompany')}
@@ -119,7 +119,7 @@ export async function About({ locale }: AboutProps) {
                   {winCount}
                 </span>
                 <span
-                  className="text-[12px] uppercase tracking-[0.2em] text-[#AAAAAA]"
+                  className="text-[12px] uppercase tracking-[0.2em] text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   KMA {locale === 'ko' ? '수상' : 'Wins'}
@@ -127,13 +127,13 @@ export async function About({ locale }: AboutProps) {
               </div>
               <div className="flex items-baseline gap-3">
                 <span
-                  className="text-[2rem] font-bold text-[#777777] leading-none"
+                  className="text-[2rem] font-bold text-[#999999] leading-none"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   {nomineeCount}
                 </span>
                 <span
-                  className="text-[12px] uppercase tracking-[0.2em] text-[#AAAAAA]"
+                  className="text-[12px] uppercase tracking-[0.2em] text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
                   KMA {locale === 'ko' ? '노미네이트' : 'Nominations'}
@@ -155,7 +155,7 @@ export async function About({ locale }: AboutProps) {
                   >
                     {/* Year */}
                     <span
-                      className="text-[12px] tracking-widest text-[#777777] group-hover:text-[#AAAAAA] transition-colors shrink-0 pt-0.5 w-10"
+                      className="text-[12px] tracking-widest text-[#999999] group-hover:text-[#CCCCCC] transition-colors shrink-0 pt-0.5 w-10"
                       style={{ fontFamily: 'var(--font-inter)' }}
                     >
                       {item.period}
@@ -163,8 +163,8 @@ export async function About({ locale }: AboutProps) {
                     {/* Description */}
                     <p
                       className={`text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.8] font-light transition-colors ${
-                        award ? 'text-[#C8C8C8]' : 'text-[#999999]'
-                      } group-hover:text-[#FFFFFFB3]`}
+                        award ? 'text-[#E0E0E0]' : 'text-[#BBBBBB]'
+                      } group-hover:text-[#FFFFFFDD]`}
                       style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
                     >
                       {award && (

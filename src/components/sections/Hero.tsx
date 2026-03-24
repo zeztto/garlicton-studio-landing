@@ -53,7 +53,7 @@ export async function Hero({ locale }: HeroProps) {
       <div className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center gap-8">
         {/* Specialist badge */}
         <span
-          className="inline-block text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA]"
+          className="inline-block text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC]"
           style={{ fontFamily: 'var(--font-inter)' }}
         >
           {t('specialist')}
@@ -66,14 +66,14 @@ export async function Hero({ locale }: HeroProps) {
         >
           Garlicton
           <br />
-          <span className="text-[0.55em] tracking-[0.18em] font-light text-[#FFFFFFCC]">
+          <span className="text-[0.55em] tracking-[0.18em] font-light text-[#FFFFFFEE]">
             Recording Studio
           </span>
         </h1>
 
         {/* Tagline from CMS */}
         <p
-          className="text-[clamp(1.1rem,2.5vw,1.6rem)] font-light text-[#FFFFFFB3] tracking-[0.04em]"
+          className="text-[clamp(1.1rem,2.5vw,1.6rem)] font-light text-[#FFFFFFDD] tracking-[0.04em]"
           style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
         >
           {tagline}
@@ -81,7 +81,7 @@ export async function Hero({ locale }: HeroProps) {
 
         {/* Intro line */}
         <p
-          className="text-[clamp(0.85rem,1.5vw,1rem)] font-light text-[#FFFFFFB3] leading-[1.9] max-w-2xl"
+          className="text-[clamp(0.85rem,1.5vw,1rem)] font-light text-[#FFFFFFDD] leading-[1.9] max-w-2xl"
           style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
         >
           {t('intro')}
@@ -93,7 +93,7 @@ export async function Hero({ locale }: HeroProps) {
         {/* Subtitle (multi-line poetic text from CMS) */}
         {subtitleLines.length > 0 && (
           <div
-            className="flex flex-col gap-1 text-[clamp(0.85rem,1.5vw,1rem)] font-light text-[#AAAAAA] leading-[1.9]"
+            className="flex flex-col gap-1 text-[clamp(0.85rem,1.5vw,1rem)] font-light text-[#CCCCCC] leading-[1.9]"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
             {subtitleLines.map((line, i) => (
@@ -104,7 +104,7 @@ export async function Hero({ locale }: HeroProps) {
 
         {/* Philosophy statement */}
         <p
-          className="text-[clamp(0.9rem,1.6vw,1.1rem)] font-normal text-[#F0F0F0] tracking-wide max-w-xl"
+          className="text-[clamp(0.9rem,1.6vw,1.1rem)] font-normal text-[#F0F0F0] tracking-wide max-w-2xl"
           style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
         >
           {t('philosophy')}

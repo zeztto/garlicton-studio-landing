@@ -43,7 +43,7 @@ export function StudioGalleryClient({ images }: StudioGalleryClientProps) {
             </div>
             {img.alt && (
               <p
-                className="mt-2 text-[11px] text-[#AAAAAA] tracking-wider text-left px-0.5"
+                className="mt-2 text-[11px] text-[#CCCCCC] tracking-wider text-left px-0.5"
                 style={{ fontFamily: 'var(--font-inter)' }}
               >
                 {img.alt}

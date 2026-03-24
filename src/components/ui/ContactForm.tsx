@@ -116,7 +116,7 @@ export function ContactForm({ locale }: { locale: string }) {
   }
 
   const inputClass =
-    'w-full bg-[#1A1A1A] border border-white/10 rounded-md px-4 py-3 text-[#F0F0F0] placeholder-[#AAAAAA] text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-all duration-200'
+    'w-full bg-[#1A1A1A] border border-white/10 rounded-md px-4 py-3 text-[#F0F0F0] placeholder-[#999999] text-sm focus:outline-none focus:ring-2 focus:ring-[#8B0000] focus:border-transparent transition-all duration-200'
   const fontFamily =
     locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)'
 
@@ -138,7 +138,7 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Name */}
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] tracking-[0.15em] uppercase text-[#AAAAAA]" htmlFor="contact-name">
+        <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-name">
           {t('name')} <span className="text-[#8B0000]">*</span>
         </label>
         <input
@@ -154,7 +154,7 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Email */}
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] tracking-[0.15em] uppercase text-[#AAAAAA]" htmlFor="contact-email">
+        <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-email">
           {t('email')} <span className="text-[#8B0000]">*</span>
         </label>
         <input
@@ -170,7 +170,7 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Phone */}
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] tracking-[0.15em] uppercase text-[#AAAAAA]" htmlFor="contact-phone">
+        <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-phone">
           {t('phone')}
         </label>
         <input
@@ -185,7 +185,7 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Services checkboxes */}
       <div className="flex flex-col gap-3">
-        <p className="text-[12px] tracking-[0.15em] uppercase text-[#AAAAAA]">{t('services')}</p>
+        <p className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]">{t('services')}</p>
         <div className="grid grid-cols-2 gap-3">
           {SERVICE_KEYS.map((key) => (
             <label
@@ -220,7 +220,7 @@ export function ContactForm({ locale }: { locale: string }) {
                 checked={selectedServices.includes(key)}
                 onChange={() => toggleService(key)}
               />
-              <span className="text-sm text-[#FFFFFFB3]">{t(key)}</span>
+              <span className="text-sm text-[#FFFFFFDD]">{t(key)}</span>
             </label>
           ))}
         </div>
@@ -228,7 +228,7 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Genre */}
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] tracking-[0.15em] uppercase text-[#AAAAAA]" htmlFor="contact-genre">
+        <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-genre">
           {t('genre')}
         </label>
         <input
@@ -243,7 +243,7 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Message */}
       <div className="flex flex-col gap-2">
-        <label className="text-[12px] tracking-[0.15em] uppercase text-[#AAAAAA]" htmlFor="contact-message">
+        <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-message">
           {t('message')} <span className="text-[#8B0000]">*</span>
         </label>
         <textarea

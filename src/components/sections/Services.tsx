@@ -37,7 +37,7 @@ export async function Services({ locale }: ServicesProps) {
         {/* Section heading */}
         <div className="mb-20">
           <p
-            className="text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA] mb-4"
+            className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             Services
@@ -49,7 +49,7 @@ export async function Services({ locale }: ServicesProps) {
             {t('title')}
           </h2>
           <p
-            className="mt-6 text-[#AAAAAA] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] max-w-2xl"
+            className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
             {t('subtitle')}
@@ -98,7 +98,7 @@ export async function Services({ locale }: ServicesProps) {
                     {/* Body paragraphs */}
                     {!isShort && (
                       <div
-                        className="flex flex-col gap-4 text-[#AAAAAA] font-light text-[clamp(0.85rem,1.3vw,0.95rem)] leading-[1.9]"
+                        className="flex flex-col gap-4 text-[#CCCCCC] font-light text-[clamp(0.85rem,1.3vw,0.95rem)] leading-[1.9]"
                         style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
                       >
                         {bodyLines.map((line, i) => (
