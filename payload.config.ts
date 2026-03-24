@@ -60,6 +60,11 @@ export default buildConfig({
           }),
           disableLocalStorage: true,
           disablePayloadAccessControl: true,
+          generateFileURL: ({ filename }) => {
+            const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dnlcuy2aj'
+            const name = filename.replace(/\.[^.]+$/, '') // remove extension
+            return `https://res.cloudinary.com/${cloudName}/image/upload/garlicton/${name}`
+          },
         },
       },
     }),
