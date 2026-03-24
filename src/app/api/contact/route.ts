@@ -38,6 +38,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
   }
 
+  // Validate phone format (optional, but if provided must be digits/dashes/spaces/parens/plus only)
+  if (phone && !/^[\d\-+() ]{4,20}$/.test(phone)) {
+    return NextResponse.json({ error: 'Invalid phone number format.' }, { status: 400 })
+  }
+
   // Verify Turnstile token (skip if no token provided — widget may not have loaded)
   if (turnstileToken) {
     const turnstileValid = await verifyTurnstileToken(turnstileToken)

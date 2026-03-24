@@ -177,7 +177,11 @@ export function ContactForm({ locale }: { locale: string }) {
           id="contact-phone"
           type="tel"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => {
+            const v = e.target.value.replace(/[^\d\-+() ]/g, '')
+            setPhone(v)
+          }}
+          pattern="[\d\-+() ]{0,20}"
           className={inputClass}
           placeholder="010-0000-0000"
         />
