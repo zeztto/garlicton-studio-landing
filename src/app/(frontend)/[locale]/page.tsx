@@ -1,8 +1,15 @@
-export default function HomePage() {
+import { Hero } from '@/components/sections/Hero'
+import { Services } from '@/components/sections/Services'
+import { About } from '@/components/sections/About'
+
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold">GARLICTON STUDIO</h1>
-    </div>
+    <>
+      <Hero locale={locale} />
+      <Services locale={locale} />
+      <About locale={locale} />
+    </>
   )
 }
 
