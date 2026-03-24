@@ -221,12 +221,31 @@ export async function seed(payload: Payload): Promise<void> {
   })
 
   if (existingServices.totalDocs > 0) {
+    let needsWork = false
+
     // Check if gallery needs seeding
     const existingGallery = await payload.find({ collection: 'gallery', limit: 1 })
     if (existingGallery.totalDocs === 0) {
-      payload.logger.info('Services exist but gallery is empty. Seeding gallery...')
+      payload.logger.info('Gallery is empty. Seeding gallery...')
       await seedGallery(payload)
-    } else {
+      needsWork = true
+    }
+
+    // Check if site-settings needs re-seeding (schema changed)
+    try {
+      const settings = await payload.findGlobal({ slug: 'site-settings' })
+      if (!settings.header?.siteName) {
+        payload.logger.info('SiteSettings needs update. Re-seeding...')
+        await seedSiteSettings(payload)
+        needsWork = true
+      }
+    } catch {
+      payload.logger.info('SiteSettings error. Re-seeding...')
+      await seedSiteSettings(payload)
+      needsWork = true
+    }
+
+    if (!needsWork) {
       payload.logger.info('Seed data already exists. Skipping.')
     }
     return
@@ -323,7 +342,14 @@ export async function seed(payload: Payload): Promise<void> {
   })
   payload.logger.info('About global seeded.')
 
-  // Seed SiteSettings global
+  await seedSiteSettings(payload)
+
+  await seedGallery(payload)
+
+  payload.logger.info('Seeding complete.')
+}
+
+async function seedSiteSettings(payload: Payload): Promise<void> {
   payload.logger.info('Seeding site-settings global...')
   await payload.updateGlobal({
     slug: 'site-settings',
@@ -353,10 +379,6 @@ export async function seed(payload: Payload): Promise<void> {
     },
   })
   payload.logger.info('SiteSettings global seeded.')
-
-  await seedGallery(payload)
-
-  payload.logger.info('Seeding complete.')
 }
 
 async function seedGallery(payload: Payload): Promise<void> {
