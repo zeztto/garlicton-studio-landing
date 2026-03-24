@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale } from 'next-intl'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from '@/i18n/navigation'
 import { locales } from '@/i18n/config'
 
 export default function LanguageToggle() {
@@ -11,13 +11,7 @@ export default function LanguageToggle() {
 
   const handleToggle = (targetLocale: string) => {
     if (targetLocale === locale) return
-
-    // Replace the current locale prefix with the new one
-    const segments = pathname.split('/')
-    // segments[0] is '', segments[1] is locale
-    segments[1] = targetLocale
-    const newPath = segments.join('/')
-    router.push(newPath)
+    router.replace(pathname, { locale: targetLocale })
   }
 
   return (
