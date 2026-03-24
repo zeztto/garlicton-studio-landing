@@ -1,0 +1,40 @@
+[    3145ms] Uncaught TurnstileError: [Cloudflare Turnstile] Invalid input for parameter "sitekey", got "0x4AAAAAACvO3_aCAmeKYVsR
+".
+    at m (https://challenges.cloudflare.com/turnstile/v0/api.js:0:10470)
+    at P (https://challenges.cloudflare.com/turnstile/v0/api.js:0:31091)
+    at B (https://garlicton-studio-landing.vercel.app/_next/static/chunks/app/(frontend)/%5Blocale%5D/page-aef52e0595ebede8.js:0:6093)
+    at <anonymous> (https://garlicton-studio-landing.vercel.app/_next/static/chunks/9145-358ff354916bcfe3.js:0:13819)
+[    3145ms] Uncaught TurnstileError: [Cloudflare Turnstile] Invalid or missing type for parameter "sitekey", expected "string", got "object".
+    at m (https://challenges.cloudflare.com/turnstile/v0/api.js:0:10470)
+    at P (https://challenges.cloudflare.com/turnstile/v0/api.js:0:30949)
+    at <anonymous> (https://challenges.cloudflare.com/turnstile/v0/api.js:0:20988)
+    at Wt (https://challenges.cloudflare.com/turnstile/v0/api.js:0:20958)
+    at Ar (https://challenges.cloudflare.com/turnstile/v0/api.js:0:21141)
+[   26031ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26031ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26031ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26031ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26031ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26031ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26086ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26086ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26147ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26147ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26208ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26209ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26209ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26220ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[   26236ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[   26236ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://static.doubleclick.net/instream/ad_status.js:0
+[  146080ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  146115ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  146182ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  146246ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  146267ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  146286ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  266144ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  266174ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  266221ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  266282ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  266310ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
+[  266334ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://googleads.g.doubleclick.net/pagead/id:0
