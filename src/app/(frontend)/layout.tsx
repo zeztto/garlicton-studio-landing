@@ -19,8 +19,8 @@ export default function FrontendLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko" className={`${oswald.variable} ${inter.variable}`}>
-      <body className="font-sans antialiased">
+    <html lang="ko" className={`${oswald.variable} ${inter.variable}`} style={{ scrollBehavior: 'smooth' }}>
+      <body className="frontend-layout antialiased">
         {children}
       </body>
     </html>

@@ -14,16 +14,19 @@
   --font-display: var(--font-oswald), sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
+/* Scope frontend styles to avoid affecting Payload admin */
+.frontend-layout {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-inter), 'Noto Sans KR', sans-serif;
+  scroll-behavior: smooth;
 }
 
-h1, h2, h3, h4, h5, h6 {
+.frontend-layout h1,
+.frontend-layout h2,
+.frontend-layout h3,
+.frontend-layout h4,
+.frontend-layout h5,
+.frontend-layout h6 {
   font-family: var(--font-oswald), sans-serif;
 }
