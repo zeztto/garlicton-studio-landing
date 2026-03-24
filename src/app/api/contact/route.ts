@@ -98,31 +98,33 @@ export async function POST(req: NextRequest) {
     // Continue to send email even if DB save fails
   }
 
-  // Send email notification
-  try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    })
+  // Send email notification (only if SMTP is configured)
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: Number(process.env.SMTP_PORT) === 465,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      })
 
-    await transporter.sendMail({
-      from: `"Garlicton Studio" <${process.env.SMTP_USER}>`,
-      to: process.env.CONTACT_EMAIL,
-      subject: `[갈릭톤 스튜디오] 새 문의: ${name}`,
-      html: htmlBody,
-      replyTo: email,
-    })
-
-    return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error('[Contact API] Email send error:', err)
-    return NextResponse.json({ error: 'Failed to send email. Please try again later.' }, { status: 500 })
+      await transporter.sendMail({
+        from: `"Garlicton Studio" <${process.env.SMTP_USER}>`,
+        to: process.env.CONTACT_EMAIL,
+        subject: `[갈릭톤 스튜디오] 새 문의: ${name}`,
+        html: htmlBody,
+        replyTo: email,
+      })
+    } catch (err) {
+      console.error('[Contact API] Email send error:', err)
+      // Don't fail the request — inquiry is already saved to DB
+    }
   }
+
+  return NextResponse.json({ success: true })
 }
 
 function escapeHtml(str: string): string {
