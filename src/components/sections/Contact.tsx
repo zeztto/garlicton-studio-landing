@@ -67,11 +67,11 @@ export async function Contact({ locale }: ContactProps) {
                   Phone
                 </p>
                 <a
-                  href="tel:+82-32-933-0000"
+                  href="tel:050713136843"
                   className="text-[#F0F0F0] font-light text-sm hover:text-[#8B0000] transition-colors duration-200"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
-                  +82 (032) 933-0000
+                  0507-1313-6843
                 </a>
               </div>
 

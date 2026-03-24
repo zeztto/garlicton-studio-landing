@@ -38,10 +38,10 @@ export default function Footer() {
             <Instagram size={16} />
           </a>
           <a
-            href="tel:+82-10-0000-0000"
+            href="tel:050713136843"
             className="text-[12px] text-[#888888] hover:text-[#F0F0F0] transition-colors tracking-wider"
           >
-            +82 10-0000-0000
+            0507-1313-6843
           </a>
         </div>
       </div>
