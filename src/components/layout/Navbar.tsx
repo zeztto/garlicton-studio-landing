@@ -6,7 +6,11 @@ import { Menu } from 'lucide-react'
 import LanguageToggle from '@/components/ui/LanguageToggle'
 import MobileMenu from '@/components/ui/MobileMenu'
 
-export default function Navbar() {
+interface NavbarProps {
+  siteName?: string
+}
+
+export default function Navbar({ siteName = 'Garlicton Recording Studio' }: NavbarProps) {
   const t = useTranslations('nav')
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -54,7 +58,7 @@ export default function Navbar() {
             className="font-[family-name:var(--font-inter)] font-semibold text-[14px] tracking-[0.15em] uppercase text-[#F0F0F0] hover:text-white transition-colors"
             style={{ fontVariant: 'small-caps' }}
           >
-            Garlicton Recording Studio
+            {siteName}
           </a>
 
           {/* Desktop nav links */}

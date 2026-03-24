@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import { getPayloadClient } from '@/lib/payload'
 import { ContactForm } from '@/components/ui/ContactForm'
 import { KakaoMap } from '@/components/ui/KakaoMap'
 
@@ -10,6 +11,25 @@ export async function Contact({ locale }: ContactProps) {
   const t = await getTranslations({ locale, namespace: 'contact' })
 
   const fontBody = locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)'
+
+  let phone = '0507-1313-6843'
+  let addressKo = '인천 강화군 강화읍 북문길67번길 8-1'
+  let addressEn = '8-1 Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon'
+  let instagramUrl = 'https://www.instagram.com/garlicton_studio'
+
+  try {
+    const payload = await getPayloadClient()
+    const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
+    phone = settings.contact?.phone ?? phone
+    addressKo = settings.contact?.address_ko ?? addressKo
+    addressEn = settings.contact?.address_en ?? addressEn
+    instagramUrl = settings.contact?.instagramUrl ?? instagramUrl
+  } catch {
+    // fall through to defaults
+  }
+
+  const phoneHref = `tel:${phone.replace(/-/g, '')}`
+  const instagramHandle = instagramUrl.replace(/\/$/, '').split('/').pop() ?? 'garlicton_studio'
 
   return (
     <section id="contact" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
@@ -67,11 +87,11 @@ export async function Contact({ locale }: ContactProps) {
                   Phone
                 </p>
                 <a
-                  href="tel:050713136843"
+                  href={phoneHref}
                   className="text-[#F0F0F0] font-light text-sm hover:text-[#8B0000] transition-colors duration-200"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
-                  0507-1313-6843
+                  {phone}
                 </a>
               </div>
 
@@ -87,13 +107,13 @@ export async function Contact({ locale }: ContactProps) {
                   className="text-[#F0F0F0] font-light text-sm leading-[1.8]"
                   style={{ fontFamily: fontBody }}
                 >
-                  인천 강화군 강화읍 북문길67번길 8-1
+                  {addressKo}
                 </p>
                 <p
                   className="text-[#CCCCCC] font-light text-xs"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
-                  8-1 Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon
+                  {addressEn}
                 </p>
               </div>
 
@@ -106,7 +126,7 @@ export async function Contact({ locale }: ContactProps) {
                   Instagram
                 </p>
                 <a
-                  href="https://www.instagram.com/garlicton_studio"
+                  href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#F0F0F0] font-light text-sm hover:text-[#8B0000] transition-colors duration-200 flex items-center gap-2"
@@ -125,7 +145,7 @@ export async function Contact({ locale }: ContactProps) {
                     <circle cx="12" cy="12" r="4" />
                     <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
                   </svg>
-                  @garlicton_studio
+                  @{instagramHandle}
                 </a>
               </div>
             </div>

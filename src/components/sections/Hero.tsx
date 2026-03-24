@@ -16,13 +16,13 @@ export async function Hero({ locale }: HeroProps) {
     const payload = await getPayloadClient()
     const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
     tagline = locale === 'ko'
-      ? (settings.tagline_ko ?? '더 멀리, 더 깊이있게')
-      : (settings.tagline_en ?? 'Further and Deeper')
+      ? (settings.hero?.tagline_ko ?? '더 멀리, 더 깊이있게')
+      : (settings.hero?.tagline_en ?? 'Further and Deeper')
     subtitle = locale === 'ko'
-      ? (settings.subtitle_ko ?? '')
-      : (settings.subtitle_en ?? '')
+      ? (settings.hero?.subtitle_ko ?? '')
+      : (settings.hero?.subtitle_en ?? '')
     // Use CMS hero background if available
-    const heroBg = settings.heroBackground as { url?: string } | null
+    const heroBg = settings.hero?.background as { url?: string } | null
     if (heroBg?.url) {
       heroBgUrl = heroBg.url
     }

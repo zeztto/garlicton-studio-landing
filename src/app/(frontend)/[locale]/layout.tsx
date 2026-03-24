@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales } from '@/i18n/config'
+import { getPayloadClient } from '@/lib/payload'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
@@ -19,9 +20,18 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   const messages = await getMessages()
 
+  let siteName = 'Garlicton Recording Studio'
+  try {
+    const payload = await getPayloadClient()
+    const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0 })
+    siteName = settings.header?.siteName ?? siteName
+  } catch {
+    // fall through to default
+  }
+
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <Navbar />
+      <Navbar siteName={siteName} />
       <main>{children}</main>
       <Footer />
     </NextIntlClientProvider>

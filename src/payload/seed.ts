@@ -328,16 +328,28 @@ export async function seed(payload: Payload): Promise<void> {
   await payload.updateGlobal({
     slug: 'site-settings',
     data: {
-      tagline_ko: '더 멀리, 더 깊이있게',
-      tagline_en: 'Further and Deeper',
-      subtitle_ko:
-        '음악에 쏟아부은 시간과 노력은 결코 헛되지 않으며,\n의미 있는 결과로 이어진다고 생각합니다.\n아티스트의 비전을 현실로 만들고,\n미래로 나아갈 수 있도록 함께 돕겠습니다.',
-      subtitle_en:
-        'The time and effort poured into music is never in vain—\nit leads to meaningful results.\nWe help turn artistic vision into reality\nand move forward into the future together.',
-      phone: '0507-1313-6843',
-      address_ko: '인천 강화군 강화읍 북문길67번길 8-1',
-      address_en: '8-1, Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon',
-      instagramUrl: 'https://www.instagram.com/garlicton_studio',
+      header: {
+        siteName: 'GARLICTON RECORDING STUDIO',
+      },
+      hero: {
+        tagline_ko: '더 멀리, 더 깊이있게',
+        tagline_en: 'Further and Deeper',
+        subtitle_ko:
+          '음악에 쏟아부은 시간과 노력은 결코 헛되지 않으며,\n의미 있는 결과로 이어진다고 생각합니다.\n아티스트의 비전을 현실로 만들고,\n미래로 나아갈 수 있도록 함께 돕겠습니다.',
+        subtitle_en:
+          'The time and effort poured into music is never in vain—\nit leads to meaningful results.\nWe help turn artistic vision into reality\nand move forward into the future together.',
+      },
+      contact: {
+        phone: '0507-1313-6843',
+        address_ko: '인천 강화군 강화읍 북문길67번길 8-1',
+        address_en: '8-1, Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon',
+        instagramUrl: 'https://www.instagram.com/garlicton_studio',
+      },
+      footer: {
+        copyright_ko: '© {year} Garlicton Recording Studio. All rights reserved.',
+        copyright_en: '© {year} Garlicton Recording Studio. All rights reserved.',
+        location: 'South Korea',
+      },
     },
   })
   payload.logger.info('SiteSettings global seeded.')
