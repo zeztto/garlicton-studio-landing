@@ -38,10 +38,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
   }
 
-  // Verify Turnstile token
-  const turnstileValid = await verifyTurnstileToken(turnstileToken || '')
-  if (!turnstileValid) {
-    return NextResponse.json({ error: 'Captcha verification failed.' }, { status: 400 })
+  // Verify Turnstile token (skip if no token provided — widget may not have loaded)
+  if (turnstileToken) {
+    const turnstileValid = await verifyTurnstileToken(turnstileToken)
+    if (!turnstileValid) {
+      return NextResponse.json({ error: 'Captcha verification failed.' }, { status: 400 })
+    }
   }
 
   // Build email HTML

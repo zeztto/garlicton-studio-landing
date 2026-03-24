@@ -188,9 +188,11 @@ export function ContactForm({ locale }: { locale: string }) {
         <p className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]">{t('services')}</p>
         <div className="grid grid-cols-2 gap-3">
           {SERVICE_KEYS.map((key) => (
-            <label
+            <button
               key={key}
-              className="flex items-center gap-3 cursor-pointer group"
+              type="button"
+              onClick={() => toggleService(key)}
+              className="flex items-center gap-3 cursor-pointer group text-left"
             >
               <span
                 className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
@@ -198,7 +200,6 @@ export function ContactForm({ locale }: { locale: string }) {
                     ? 'bg-[#8B0000] border-[#8B0000]'
                     : 'border-white/20 group-hover:border-white/40'
                 }`}
-                onClick={() => toggleService(key)}
               >
                 {selectedServices.includes(key) && (
                   <svg
@@ -214,14 +215,8 @@ export function ContactForm({ locale }: { locale: string }) {
                   </svg>
                 )}
               </span>
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={selectedServices.includes(key)}
-                onChange={() => toggleService(key)}
-              />
               <span className="text-sm text-[#FFFFFFDD]">{t(key)}</span>
-            </label>
+            </button>
           ))}
         </div>
       </div>
