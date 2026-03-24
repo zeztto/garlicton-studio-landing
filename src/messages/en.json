@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "about": "About",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "studio": "Studio",
+    "contact": "Contact"
+  },
+  "hero": {
+    "cta": "Get in Touch",
+    "specialist": "K-Metal Music Specialist"
+  },
+  "services": {
+    "title": "Our Process",
+    "subtitle": "A recorded work is a window into the artist's passion—and an act of designing the future."
+  },
+  "about": {
+    "title": "The Staff",
+    "subtitle": "The best take creates the best result.",
+    "experience": "15+ years in the metal music industry",
+    "studioName": "Garlicton"
+  },
+  "portfolio": {
+    "title": "Works",
+    "subtitle": "We want to create great music together."
+  },
+  "studio": {
+    "title": "The Studio",
+    "subtitle": "We value the process of working together and pushing for better results.",
+    "description": "Garlicton Studio is a metal music recording studio located on Ganghwa Island. In our private, house-style space, you can focus on creating without time pressure.",
+    "authentic": "Authentic Sound",
+    "authenticDesc": "An engineer who understands the essence of metal music precisely captures raw energy and detail.",
+    "comfortable": "Comfortable Environment",
+    "comfortableDesc": "Focus on creation without time pressure in our private, house-style space."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Feel free to reach out.",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "services": "Services of Interest",
+    "genre": "Genre",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your project...",
+    "submit": "Send Message",
+    "success": "Your inquiry has been received. We will contact you soon.",
+    "error": "Failed to send. Please try again.",
+    "recording": "Recording",
+    "mixing": "Mixing",
+    "mastering": "Mastering",
+    "producing": "Producing",
+    "reservation": "Garlicton Studio operates 100% by reservation. Please inquire before visiting."
+  },
+  "footer": {
+    "copyright": "© {year} Garlicton Recording Studio. All rights reserved.",
+    "location": "South Korea"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "about": "소개",
+    "services": "서비스",
+    "portfolio": "포트폴리오",
+    "studio": "스튜디오",
+    "contact": "연락처"
+  },
+  "hero": {
+    "cta": "문의하기",
+    "specialist": "K-Metal Music Specialist"
+  },
+  "services": {
+    "title": "작업 프로세스",
+    "subtitle": "음원은 아티스트의 열정이 담긴 창이며, 곧 미래를 설계하는 일입니다."
+  },
+  "about": {
+    "title": "The Staff",
+    "subtitle": "최고의 테이크가 최고의 결과물을 만든다.",
+    "experience": "15년 이상의 메탈 음악 산업 경력",
+    "studioName": "Garlicton"
+  },
+  "portfolio": {
+    "title": "Works",
+    "subtitle": "함께 멋진 음악을 만들어가고 싶습니다."
+  },
+  "studio": {
+    "title": "The Studio",
+    "subtitle": "더 나은 결과를 위해 함께 고민하고 도전하는 과정을 중요하게 생각합니다.",
+    "description": "갈릭톤 스튜디오는 강화도에 자리한 메탈 음악 전문 레코딩 스튜디오입니다. 주택형 구조의 프라이빗 공간에서 시간 압박 없이 창작에 집중할 수 있습니다.",
+    "authentic": "진정성 있는 사운드",
+    "authenticDesc": "메탈 음악의 본질을 이해하는 엔지니어가 날것의 에너지와 디테일을 정확하게 구현합니다.",
+    "comfortable": "편안한 작업 환경",
+    "comfortableDesc": "주택형 구조의 프라이빗 공간에서 시간 압박 없이 창작에 집중할 수 있습니다."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "편하게 연락주세요.",
+    "name": "이름",
+    "email": "이메일",
+    "phone": "전화번호",
+    "services": "관심 서비스",
+    "genre": "장르",
+    "message": "메시지",
+    "messagePlaceholder": "프로젝트에 대해 알려주세요...",
+    "submit": "보내기",
+    "success": "문의가 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.",
+    "error": "전송에 실패했습니다. 다시 시도해주세요.",
+    "recording": "레코딩",
+    "mixing": "믹싱",
+    "mastering": "마스터링",
+    "producing": "프로듀싱",
+    "reservation": "갈릭톤 스튜디오는 100% 예약제로 운영되며 방문 전 문의가 필요합니다."
+  },
+  "footer": {
+    "copyright": "© {year} Garlicton Recording Studio. All rights reserved.",
+    "location": "South Korea"
+  }
+}
