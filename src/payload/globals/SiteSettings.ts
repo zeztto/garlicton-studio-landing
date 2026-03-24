@@ -7,18 +7,55 @@ export const SiteSettings: GlobalConfig = {
     group: '⚙️ 설정',
   },
   fields: [
-    { name: 'logo', type: 'upload', relationTo: 'media', label: '로고' },
-    { name: 'heroBackground', type: 'upload', relationTo: 'media', label: '히어로 배경 이미지' },
-    { name: 'tagline_ko', type: 'text', label: '태그라인 (한국어)', defaultValue: '더 멀리, 더 깊이있게' },
-    { name: 'tagline_en', type: 'text', label: 'Tagline (English)', defaultValue: 'Further and Deeper' },
-    { name: 'subtitle_ko', type: 'textarea', label: '서브카피 (한국어)', defaultValue: '음악에 쏟아부은 시간과 노력은 결코 헛되지 않으며,\n의미 있는 결과로 이어진다고 생각합니다.\n아티스트의 비전을 현실로 만들고,\n미래로 나아갈 수 있도록 함께 돕겠습니다.' },
-    { name: 'subtitle_en', type: 'textarea', label: 'Subtitle (English)', defaultValue: 'The time and effort you pour into music is never in vain—\nit leads to meaningful results.\nWe help turn your artistic vision into reality\nand move forward into the future together.' },
-    { name: 'phone', type: 'text', label: '전화번호', defaultValue: '0507-1313-6843' },
-    { name: 'email', type: 'email', label: '이메일' },
-    { name: 'address_ko', type: 'text', label: '주소 (한국어)', defaultValue: '인천 강화군 강화읍 북문길67번길 8-1' },
-    { name: 'address_en', type: 'text', label: 'Address (English)', defaultValue: '8-1, Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon' },
-    { name: 'instagramUrl', type: 'text', label: '인스타그램 URL', defaultValue: 'https://www.instagram.com/garlicton_studio' },
-    { name: 'kakaoChannelUrl', type: 'text', label: '카카오 채널 URL (보류)' },
+    // 헤더
+    {
+      name: 'header',
+      type: 'group',
+      label: '헤더',
+      fields: [
+        { name: 'siteName', type: 'text', label: '사이트 이름', defaultValue: 'GARLICTON RECORDING STUDIO' },
+        { name: 'logo', type: 'upload', relationTo: 'media', label: '로고 이미지 (선택)' },
+      ],
+    },
+    // 히어로
+    {
+      name: 'hero',
+      type: 'group',
+      label: '히어로 섹션',
+      fields: [
+        { name: 'background', type: 'upload', relationTo: 'media', label: '배경 이미지' },
+        { name: 'tagline_ko', type: 'text', label: '태그라인 (한국어)', defaultValue: '더 멀리, 더 깊이있게' },
+        { name: 'tagline_en', type: 'text', label: 'Tagline (English)', defaultValue: 'Further and Deeper' },
+        { name: 'subtitle_ko', type: 'textarea', label: '서브카피 (한국어)', defaultValue: '음악에 쏟아부은 시간과 노력은 결코 헛되지 않으며,\n의미 있는 결과로 이어진다고 생각합니다.\n아티스트의 비전을 현실로 만들고,\n미래로 나아갈 수 있도록 함께 돕겠습니다.' },
+        { name: 'subtitle_en', type: 'textarea', label: 'Subtitle (English)', defaultValue: 'The time and effort poured into music is never in vain—\nit leads to meaningful results.\nWe help turn artistic vision into reality\nand move forward into the future together.' },
+      ],
+    },
+    // 연락처 정보
+    {
+      name: 'contact',
+      type: 'group',
+      label: '연락처 정보',
+      fields: [
+        { name: 'phone', type: 'text', label: '전화번호', defaultValue: '0507-1313-6843' },
+        { name: 'email', type: 'email', label: '이메일' },
+        { name: 'address_ko', type: 'text', label: '주소 (한국어)', defaultValue: '인천 강화군 강화읍 북문길67번길 8-1' },
+        { name: 'address_en', type: 'text', label: 'Address (English)', defaultValue: '8-1, Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon' },
+        { name: 'instagramUrl', type: 'text', label: '인스타그램 URL', defaultValue: 'https://www.instagram.com/garlicton_studio' },
+        { name: 'kakaoChannelUrl', type: 'text', label: '카카오 채널 URL (보류)' },
+      ],
+    },
+    // 푸터
+    {
+      name: 'footer',
+      type: 'group',
+      label: '푸터',
+      fields: [
+        { name: 'copyright_ko', type: 'text', label: '저작권 문구 (한국어)', defaultValue: '© {year} Garlicton Recording Studio. All rights reserved.' },
+        { name: 'copyright_en', type: 'text', label: 'Copyright (English)', defaultValue: '© {year} Garlicton Recording Studio. All rights reserved.' },
+        { name: 'location', type: 'text', label: '위치', defaultValue: 'South Korea' },
+      ],
+    },
+    // SEO
     {
       name: 'seo',
       type: 'group',
