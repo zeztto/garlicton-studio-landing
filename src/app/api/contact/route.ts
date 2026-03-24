@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { verifyTurnstileToken } from '@/lib/turnstile'
+import { getPayloadClient } from '@/lib/payload'
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>
@@ -77,6 +78,27 @@ export async function POST(req: NextRequest) {
     </div>
   `
 
+  // Save to Inquiries collection in CMS
+  try {
+    const payload = await getPayloadClient()
+    await payload.create({
+      collection: 'inquiries',
+      data: {
+        name,
+        email,
+        phone: phone || undefined,
+        services: Array.isArray(services) ? services : undefined,
+        genre: genre || undefined,
+        message,
+        isRead: false,
+      },
+    })
+  } catch (err) {
+    console.error('[Contact API] DB save error:', err)
+    // Continue to send email even if DB save fails
+  }
+
+  // Send email notification
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
