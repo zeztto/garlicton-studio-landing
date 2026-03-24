@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 // Approximate coordinates for Ganghwa-eup area (인천 강화군 강화읍 북문길67번길 8-1)
-const LAT = 37.7470
-const LNG = 126.4870
+const LAT = 37.752179
+const LNG = 126.483050
 
 declare global {
   interface Window {
