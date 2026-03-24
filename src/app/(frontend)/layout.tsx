@@ -1,5 +1,5 @@
 import { Oswald, Inter } from 'next/font/google'
-import '../globals.css'
+import './frontend.css'
 
 const oswald = Oswald({
   subsets: ['latin'],
@@ -20,7 +20,7 @@ export default function FrontendLayout({
 }) {
   return (
     <html lang="ko" className={`${oswald.variable} ${inter.variable}`} style={{ scrollBehavior: 'smooth' }}>
-      <body className="frontend-layout antialiased">
+      <body className="antialiased">
         {children}
       </body>
     </html>
