@@ -49,12 +49,12 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
     }))
 
   return (
-    <section id="studio" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/5">
+    <section id="studio" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
       <div className="max-w-7xl mx-auto">
         {/* Section heading */}
         <div className="mb-20">
           <p
-            className="text-[11px] tracking-[0.3em] uppercase text-[#888888] mb-4"
+            className="text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             Studio
@@ -66,7 +66,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
             {t('title')}
           </h2>
           <p
-            className="mt-6 text-[#888888] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
+            className="mt-6 text-[#AAAAAA] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
             {t('subtitle')}
@@ -96,7 +96,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               {t('authentic')}
             </h3>
             <p
-              className="text-[#888888] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
+              className="text-[#AAAAAA] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
               {t('authenticDesc')}
@@ -113,7 +113,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               {t('comfortable')}
             </h3>
             <p
-              className="text-[#888888] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
+              className="text-[#AAAAAA] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
               {t('comfortableDesc')}

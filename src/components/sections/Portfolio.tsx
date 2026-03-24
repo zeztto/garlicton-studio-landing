@@ -37,12 +37,12 @@ export async function Portfolio({ locale }: PortfolioProps) {
   }
 
   return (
-    <section id="portfolio" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/5">
+    <section id="portfolio" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
       <div className="max-w-7xl mx-auto">
         {/* Section heading */}
         <div className="mb-20">
           <p
-            className="text-[11px] tracking-[0.3em] uppercase text-[#888888] mb-4"
+            className="text-[11px] tracking-[0.3em] uppercase text-[#AAAAAA] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             Portfolio
@@ -54,7 +54,7 @@ export async function Portfolio({ locale }: PortfolioProps) {
             {t('title')}
           </h2>
           <p
-            className="mt-6 text-[#888888] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
+            className="mt-6 text-[#AAAAAA] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
             {t('subtitle')}
@@ -100,7 +100,7 @@ export async function Portfolio({ locale }: PortfolioProps) {
                     {/* Award info (description) */}
                     {description && (
                       <p
-                        className="text-[#888888] text-[11px] leading-[1.7] mt-0.5"
+                        className="text-[#AAAAAA] text-[11px] leading-[1.7] mt-0.5"
                         style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
                       >
                         {description}
@@ -110,7 +110,7 @@ export async function Portfolio({ locale }: PortfolioProps) {
                     {/* Genre tag */}
                     {item.genre && (
                       <span
-                        className="inline-block self-start mt-1 px-2 py-0.5 border border-white/10 text-[10px] tracking-[0.15em] uppercase text-[#888888]"
+                        className="inline-block self-start mt-1 px-2 py-0.5 border border-white/10 text-[10px] tracking-[0.15em] uppercase text-[#AAAAAA]"
                         style={{ fontFamily: 'var(--font-inter)' }}
                       >
                         {item.genre}
@@ -123,7 +123,7 @@ export async function Portfolio({ locale }: PortfolioProps) {
           </div>
         ) : (
           <p
-            className="text-[#444444] text-sm tracking-wider"
+            className="text-[#777777] text-sm tracking-wider"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
             No portfolio items yet.
