@@ -5,6 +5,15 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { Media } from './src/payload/collections/Media'
+import { Services } from './src/payload/collections/Services'
+import { Portfolio } from './src/payload/collections/Portfolio'
+import { Gallery } from './src/payload/collections/Gallery'
+import { Inquiries } from './src/payload/collections/Inquiries'
+import { Pages } from './src/payload/collections/Pages'
+import { SiteSettings } from './src/payload/globals/SiteSettings'
+import { About } from './src/payload/globals/About'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -21,18 +30,14 @@ export default buildConfig({
       auth: true,
       fields: [],
     },
-    {
-      slug: 'media',
-      upload: true,
-      fields: [
-        {
-          name: 'alt',
-          type: 'text',
-          required: true,
-        },
-      ],
-    },
+    Media,
+    Services,
+    Portfolio,
+    Gallery,
+    Inquiries,
+    Pages,
   ],
+  globals: [SiteSettings, About],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
