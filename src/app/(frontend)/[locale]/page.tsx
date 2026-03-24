@@ -31,6 +31,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'RecordingStudio',
   name: 'Garlicton Studio',
+  url: 'https://garlicton.com',
   description: 'Metal music recording, mixing, mastering, and producing studio',
   address: {
     '@type': 'PostalAddress',
