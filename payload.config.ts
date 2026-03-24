@@ -1,9 +1,11 @@
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import { cloudinaryAdapter } from './src/lib/cloudinary-adapter'
 
 import { Media } from './src/payload/collections/Media'
 import { Services } from './src/payload/collections/Services'
@@ -47,6 +49,21 @@ export default buildConfig({
     },
   ],
   globals: [SiteSettings, About],
+  plugins: [
+    cloudStoragePlugin({
+      collections: {
+        media: {
+          adapter: cloudinaryAdapter({
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME || 'dnlcuy2aj',
+            apiKey: process.env.CLOUDINARY_API_KEY || '971361643582292',
+            apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+          }),
+          disableLocalStorage: true,
+          disablePayloadAccessControl: true,
+        },
+      },
+    }),
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

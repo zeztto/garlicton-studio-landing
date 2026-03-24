@@ -11,8 +11,10 @@
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.80.0",
     "@payloadcms/next": "^3.80.0",
+    "@payloadcms/plugin-cloud-storage": "^3.80.0",
     "@payloadcms/richtext-lexical": "^3.80.0",
     "@payloadcms/ui": "^3.80.0",
+    "cloudinary": "^2.9.0",
     "graphql": "^16.8.1",
     "lucide-react": "^0.511.0",
     "next": "15.3.9",
