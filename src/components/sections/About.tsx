@@ -18,7 +18,7 @@ export async function About({ locale }: AboutProps) {
   let name = locale === 'ko' ? '이주희' : 'Lee Ju Hee'
   let title = 'Founder / Producer / Mixer / Mastering Engineer'
   let career: CareerItem[] = []
-  let profileImageUrl = '/images/instagram/profile.jpg'
+  let profileImageUrl = 'https://res.cloudinary.com/dnlcuy2aj/image/upload/v1774365620/garlicton/profile.jpg'
 
   try {
     const payload = await getPayloadClient()

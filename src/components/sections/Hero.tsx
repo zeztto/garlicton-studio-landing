@@ -10,7 +10,7 @@ export async function Hero({ locale }: HeroProps) {
 
   let tagline = ''
   let subtitle = ''
-  let heroBgUrl = '/images/instagram/studio-08.jpg'
+  let heroBgUrl = 'https://res.cloudinary.com/dnlcuy2aj/image/upload/v1774365632/garlicton/studio-08.jpg'
 
   try {
     const payload = await getPayloadClient()
