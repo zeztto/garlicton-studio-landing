@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Oswald, Inter } from 'next/font/google'
+import { SITE_URL } from '@/lib/site'
 import './frontend.css'
 
 const oswald = Oswald({
@@ -15,6 +16,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다',
   description: 'Metal music production studio',
   icons: {

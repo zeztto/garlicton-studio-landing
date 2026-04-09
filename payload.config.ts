@@ -19,6 +19,8 @@ import { seed } from './src/payload/seed.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dnlcuy2aj'
+const payloadSecret = process.env.PAYLOAD_SECRET || 'development-only-payload-secret'
 
 export default buildConfig({
   admin: {
@@ -54,23 +56,22 @@ export default buildConfig({
       collections: {
         media: {
           adapter: cloudinaryAdapter({
-            cloudName: process.env.CLOUDINARY_CLOUD_NAME || 'dnlcuy2aj',
-            apiKey: process.env.CLOUDINARY_API_KEY || '971361643582292',
+            cloudName: cloudinaryCloudName,
+            apiKey: process.env.CLOUDINARY_API_KEY || '',
             apiSecret: process.env.CLOUDINARY_API_SECRET || '',
           }),
           disableLocalStorage: true,
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename }) => {
-            const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dnlcuy2aj'
             const name = filename.replace(/\.[^.]+$/, '') // remove extension
-            return `https://res.cloudinary.com/${cloudName}/image/upload/garlicton/${name}`
+            return `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/garlicton/${name}`
           },
         },
       },
     }),
   ],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: payloadSecret,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

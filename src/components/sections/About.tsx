@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import Image from 'next/image'
 import { getPayloadClient } from '@/lib/payload'
 
 interface AboutProps {
@@ -83,9 +84,11 @@ export async function About({ locale }: AboutProps) {
           <div className="flex flex-col gap-4">
             {/* Profile image */}
             <div className="w-24 h-24 rounded-full overflow-hidden mb-2 border border-white/10">
-              <img
+              <Image
                 src={profileImageUrl}
                 alt={name}
+                width={96}
+                height={96}
                 className="w-full h-full object-cover"
               />
             </div>

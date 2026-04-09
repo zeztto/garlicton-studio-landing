@@ -6,8 +6,10 @@ import { Portfolio } from '@/components/sections/Portfolio'
 import { StudioGallery } from '@/components/sections/StudioGallery'
 import { Contact } from '@/components/sections/Contact'
 import { getPayloadClient } from '@/lib/payload'
+import { SITE_URL } from '@/lib/site'
 
 const PAGE_TITLE = '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다'
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
@@ -22,8 +24,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title,
     description,
     alternates: {
-      canonical: `/${locale}`,
-      languages: { ko: '/ko', en: '/en' },
+      canonical: `${SITE_URL}/${locale}`,
+      languages: {
+        ko: `${SITE_URL}/ko`,
+        en: `${SITE_URL}/en`,
+        'x-default': `${SITE_URL}/ko`,
+      },
     },
     openGraph: {
       title: title || '',
@@ -44,7 +50,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'RecordingStudio',
   name: 'Garlicton Studio',
-  url: 'https://garlicton.com',
+  url: SITE_URL,
   description: 'Metal music recording, mixing, mastering, and producing studio',
   address: {
     '@type': 'PostalAddress',
@@ -72,8 +78,4 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Contact locale={locale} />
     </>
   )
-}
-
-export function generateStaticParams() {
-  return [{ locale: 'ko' }, { locale: 'en' }]
 }

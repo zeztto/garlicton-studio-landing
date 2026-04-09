@@ -1,17 +1,17 @@
 import type { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://garlicton.com'
   return [
     {
-      url: `${baseUrl}/ko`,
+      url: `${SITE_URL}/ko`,
       lastModified: new Date(),
-      alternates: { languages: { ko: `${baseUrl}/ko`, en: `${baseUrl}/en` } },
+      alternates: { languages: { ko: `${SITE_URL}/ko`, en: `${SITE_URL}/en` } },
     },
     {
-      url: `${baseUrl}/en`,
+      url: `${SITE_URL}/en`,
       lastModified: new Date(),
-      alternates: { languages: { ko: `${baseUrl}/ko`, en: `${baseUrl}/en` } },
+      alternates: { languages: { ko: `${SITE_URL}/ko`, en: `${SITE_URL}/en` } },
     },
   ]
 }

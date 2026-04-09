@@ -6,6 +6,8 @@ import { getPayloadClient } from '@/lib/payload'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   children: React.ReactNode
   params: Promise<{ locale: string }>
