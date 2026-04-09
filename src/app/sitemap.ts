@@ -1,76 +1,54 @@
 import type { MetadataRoute } from 'next'
-import { getPayloadClient } from '@/lib/payload'
+import { getPageTimestamp, getPublishedPages } from '@/app/(frontend)/[locale]/pages/_lib'
 import { SITE_URL } from '@/lib/site'
 
-type PublishedPage = {
-  slug: string
-  updatedAt?: string
-  createdAt?: string
-  updated_at?: string
-  created_at?: string
+function createLocalizedEntry(pathname: string, lastModified: Date): MetadataRoute.Sitemap[number][] {
+  return [
+    {
+      url: `${SITE_URL}/ko${pathname}`,
+      lastModified,
+      alternates: {
+        languages: {
+          ko: `${SITE_URL}/ko${pathname}`,
+          en: `${SITE_URL}/en${pathname}`,
+        },
+      },
+    },
+    {
+      url: `${SITE_URL}/en${pathname}`,
+      lastModified,
+      alternates: {
+        languages: {
+          ko: `${SITE_URL}/ko${pathname}`,
+          en: `${SITE_URL}/en${pathname}`,
+        },
+      },
+    },
+  ]
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date()
   const entries: MetadataRoute.Sitemap = [
-    {
-      url: `${SITE_URL}/ko`,
-      lastModified: new Date(),
-      alternates: { languages: { ko: `${SITE_URL}/ko`, en: `${SITE_URL}/en` } },
-    },
-    {
-      url: `${SITE_URL}/en`,
-      lastModified: new Date(),
-      alternates: { languages: { ko: `${SITE_URL}/ko`, en: `${SITE_URL}/en` } },
-    },
-    {
-      url: `${SITE_URL}/ko/pages`,
-      lastModified: new Date(),
-      alternates: { languages: { ko: `${SITE_URL}/ko/pages`, en: `${SITE_URL}/en/pages` } },
-    },
-    {
-      url: `${SITE_URL}/en/pages`,
-      lastModified: new Date(),
-      alternates: { languages: { ko: `${SITE_URL}/ko/pages`, en: `${SITE_URL}/en/pages` } },
-    },
+    ...createLocalizedEntry('', now),
+    ...createLocalizedEntry('/pages', now),
   ]
 
   try {
-    const payload = await getPayloadClient()
-    const result = await payload.find({
-      collection: 'pages',
-      depth: 0,
-      limit: 1000,
-      where: {
-        status: {
-          equals: 'published',
-        },
-      },
-    }) as unknown as { docs?: PublishedPage[] }
+    const pages = await getPublishedPages()
+    const latestTimestamp = pages
+      .map((page) => getPageTimestamp(page))
+      .find((timestamp): timestamp is string => Boolean(timestamp))
 
-    for (const page of result.docs ?? []) {
-      const lastModified = page.updatedAt ?? page.updated_at ?? page.createdAt ?? page.created_at ?? new Date().toISOString()
+    if (latestTimestamp) {
+      const lastModified = new Date(latestTimestamp)
+      entries[2].lastModified = lastModified
+      entries[3].lastModified = lastModified
+    }
 
-      entries.push({
-        url: `${SITE_URL}/ko/pages/${page.slug}`,
-        lastModified: new Date(lastModified),
-        alternates: {
-          languages: {
-            ko: `${SITE_URL}/ko/pages/${page.slug}`,
-            en: `${SITE_URL}/en/pages/${page.slug}`,
-          },
-        },
-      })
-
-      entries.push({
-        url: `${SITE_URL}/en/pages/${page.slug}`,
-        lastModified: new Date(lastModified),
-        alternates: {
-          languages: {
-            ko: `${SITE_URL}/ko/pages/${page.slug}`,
-            en: `${SITE_URL}/en/pages/${page.slug}`,
-          },
-        },
-      })
+    for (const page of pages) {
+      const lastModified = new Date(getPageTimestamp(page) ?? now.toISOString())
+      entries.push(...createLocalizedEntry(`/pages/${page.slug}`, lastModified))
     }
   } catch {
     return entries

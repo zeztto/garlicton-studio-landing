@@ -5,7 +5,16 @@ import { locales } from '@/i18n/config'
 import { getPayloadClient } from '@/lib/payload'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { getLocalizedText, getPlainText, getSectionOrder, isSectionVisible, type HomeSectionKey } from '@/lib/site-settings'
+import {
+  createNavLink,
+  getLocalizedText,
+  getPagesIndexNavLink,
+  getPlainText,
+  getSectionOrder,
+  isSectionVisible,
+  type HomeSectionKey,
+  type NavLinkItem,
+} from '@/lib/site-settings'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,9 +31,10 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   const messages = await getMessages()
+  const homeHref = `/${locale}`
 
   let siteName = 'Garlicton Recording Studio'
-  let navLinks: Array<{ href: string; label: string }> = []
+  let navLinks: NavLinkItem[] = []
   try {
     const payload = await getPayloadClient()
     const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 }) as Record<string, any>
@@ -50,24 +60,26 @@ export default async function LocaleLayout({ children, params }: Props) {
     navLinks = getSectionOrder(settings.homepageLayout)
       .filter((section): section is Exclude<HomeSectionKey, 'hero'> => section !== 'hero')
       .filter((section) => sectionVisibility[section])
-      .map((section) => ({
-        href: `#${section}`,
-        label: navLabelMap[section],
-      }))
+      .map((section) => createNavLink(`${homeHref}#${section}`, navLabelMap[section]))
+
+    const pagesIndexLink = getPagesIndexNavLink(settings, locale)
+    if (pagesIndexLink && !navLinks.some((link) => link.href === pagesIndexLink.href)) {
+      navLinks = [...navLinks, pagesIndexLink]
+    }
   } catch {
     // fall through to default
     navLinks = [
-      { href: '#about', label: locale === 'ko' ? '소개' : 'About' },
-      { href: '#services', label: locale === 'ko' ? '서비스' : 'Services' },
-      { href: '#portfolio', label: locale === 'ko' ? '포트폴리오' : 'Portfolio' },
-      { href: '#studio', label: locale === 'ko' ? '스튜디오' : 'Studio' },
-      { href: '#contact', label: locale === 'ko' ? '연락처' : 'Contact' },
+      createNavLink(`${homeHref}#about`, locale === 'ko' ? '소개' : 'About'),
+      createNavLink(`${homeHref}#services`, locale === 'ko' ? '서비스' : 'Services'),
+      createNavLink(`${homeHref}#portfolio`, locale === 'ko' ? '포트폴리오' : 'Portfolio'),
+      createNavLink(`${homeHref}#studio`, locale === 'ko' ? '스튜디오' : 'Studio'),
+      createNavLink(`${homeHref}#contact`, locale === 'ko' ? '연락처' : 'Contact'),
     ]
   }
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <Navbar siteName={siteName} navLinks={navLinks} />
+      <Navbar siteName={siteName} homeHref={homeHref} navLinks={navLinks} />
       <main>{children}</main>
       <Footer />
     </NextIntlClientProvider>

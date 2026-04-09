@@ -61,6 +61,9 @@ export const SiteSettings: GlobalConfig = {
       name: 'navigation',
       type: 'group',
       label: '네비게이션',
+      admin: {
+        description: '홈페이지 상단 메뉴 라벨을 제어합니다.',
+      },
       fields: [
         ...localizedTextField('aboutLabel', '소개 섹션 네비게이션 라벨', '소개', 'About'),
         ...localizedTextField('servicesLabel', '서비스 섹션 네비게이션 라벨', '서비스', 'Services'),
@@ -73,6 +76,9 @@ export const SiteSettings: GlobalConfig = {
       name: 'homepageLayout',
       type: 'group',
       label: '홈페이지 구성',
+      admin: {
+        description: '메인 페이지 섹션 순서와 노출 구성을 관리합니다.',
+      },
       fields: [
         {
           name: 'sectionOrder',
@@ -249,6 +255,9 @@ export const SiteSettings: GlobalConfig = {
       name: 'contactForm',
       type: 'group',
       label: '문의 폼',
+      admin: {
+        description: '문의 폼 라벨, placeholder, 버튼/상태 메시지를 관리합니다.',
+      },
       fields: [
         ...localizedTextField('nameLabel', '이름 필드 라벨', '이름', 'Name'),
         ...localizedTextField('namePlaceholder', '이름 placeholder', '성함을 입력해주세요', 'Your name'),
@@ -305,6 +314,9 @@ export const SiteSettings: GlobalConfig = {
       name: 'footer',
       type: 'group',
       label: '푸터',
+      admin: {
+        description: '푸터 소개 문구와 연락처/소셜 노출 여부를 관리합니다.',
+      },
       fields: [
         { name: 'copyright_ko', type: 'text', label: '저작권 문구 (한국어)', defaultValue: '© {year} Garlicton Recording Studio. All rights reserved.' },
         { name: 'copyright_en', type: 'text', label: 'Copyright (English)', defaultValue: '© {year} Garlicton Recording Studio. All rights reserved.' },
@@ -324,6 +336,39 @@ export const SiteSettings: GlobalConfig = {
         { name: 'showEmail', type: 'checkbox', label: '이메일 노출', defaultValue: true },
         { name: 'showInstagram', type: 'checkbox', label: 'Instagram 노출', defaultValue: true },
         { name: 'showKakaoChannel', type: 'checkbox', label: '카카오 채널 노출', defaultValue: false },
+      ],
+    },
+    {
+      name: 'pagesIndex',
+      type: 'group',
+      label: '공개 페이지 목록',
+      admin: {
+        description: '공개 `/[locale]/pages` 목록의 노출 문구와 navbar 링크를 제어합니다.',
+      },
+      fields: [
+        { name: 'visible', type: 'checkbox', label: 'navbar에 노출', defaultValue: false },
+        { name: 'href', type: 'text', label: '링크 경로', defaultValue: '/pages' },
+        ...localizedTextField('navLabel', '네비게이션 라벨', '페이지', 'Pages'),
+        ...localizedTextField('eyebrow', '상단 라벨', 'CMS', 'CMS'),
+        ...localizedTextField('title', '목록 제목', '페이지', 'Pages'),
+        ...localizedTextareaField(
+          'subtitle',
+          '목록 설명',
+          '갈릭톤 스튜디오에서 발행한 CMS 페이지 목록입니다.',
+          'Published CMS pages from Garlicton Studio.',
+        ),
+        ...localizedTextField('emptyState', '비어 있을 때 문구', '게시된 페이지가 아직 없습니다.', 'No published pages yet.'),
+        ...localizedTextField('viewPageLabel', '목록 CTA 문구', '페이지 보기', 'View page'),
+        ...localizedTextField('backToListLabel', '상세 복귀 링크 문구', '페이지 목록으로', 'Back to pages'),
+        ...localizedTextField('publishedLabel', '게시일 라벨', '게시', 'Published'),
+        ...localizedTextField('untitledFallback', '제목 fallback', '제목 없는 페이지', 'Untitled page'),
+        ...localizedTextField('metaTitle', '목록 SEO 제목', '페이지 | Garlicton Studio', 'Pages | Garlicton Studio'),
+        ...localizedTextareaField(
+          'metaDescription',
+          '목록 SEO 설명',
+          '갈릭톤 스튜디오에서 발행한 CMS 페이지 목록입니다.',
+          'Published CMS pages from Garlicton Studio.',
+        ),
       ],
     },
     // SEO

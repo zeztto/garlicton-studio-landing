@@ -1,22 +1,49 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { X } from 'lucide-react'
 import LanguageToggle from './LanguageToggle'
-
-type NavLink = {
-  href: string
-  label: string
-}
+import type { NavLinkItem } from '@/lib/site-settings'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
-  links: NavLink[]
+  links: NavLinkItem[]
+}
+
+function normalizePathname(pathname: string | null): string {
+  if (!pathname || pathname === '/') {
+    return pathname ?? '/'
+  }
+
+  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
+}
+
+function getAnchorTarget(href: string): { pathname: string; selector: string } | null {
+  const hashIndex = href.indexOf('#')
+
+  if (hashIndex < 0) {
+    return null
+  }
+
+  const rawPathname = href.slice(0, hashIndex) || '/'
+  const rawHash = href.slice(hashIndex + 1)
+
+  if (!rawHash) {
+    return null
+  }
+
+  return {
+    pathname: normalizePathname(rawPathname),
+    selector: `#${rawHash}`,
+  }
 }
 
 export default function MobileMenu({ isOpen, onClose, links }: Props) {
+  const pathname = usePathname()
+
   // Prevent body scroll when menu is open
   useEffect(() => {
     if (isOpen) {
@@ -29,13 +56,25 @@ export default function MobileMenu({ isOpen, onClose, links }: Props) {
     }
   }, [isOpen])
 
-  const handleLinkClick = (href: string) => {
+  const handleLinkClick = (link: NavLinkItem) => {
     onClose()
+
+    if (link.kind !== 'anchor') {
+      return
+    }
+
+    const target = getAnchorTarget(link.href)
+
+    if (!target || normalizePathname(pathname) !== target.pathname) {
+      return
+    }
+
     // Smooth scroll after menu closes
     setTimeout(() => {
-      const el = document.querySelector(href)
+      const el = document.querySelector(target.selector)
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' })
+        window.history.replaceState(null, '', link.href)
       }
     }, 300)
   }
@@ -61,13 +100,14 @@ export default function MobileMenu({ isOpen, onClose, links }: Props) {
       {/* Nav links */}
       <nav className="flex flex-col items-center justify-center flex-1 gap-8">
         {links.map((link) => (
-          <button
+          <Link
             key={link.href}
-            onClick={() => handleLinkClick(link.href)}
+            href={link.href}
+            onClick={() => handleLinkClick(link)}
             className="text-[#FFFFFFDD] hover:text-[#F0F0F0] transition-colors font-[family-name:var(--font-inter)] text-2xl tracking-widest uppercase"
           >
             {link.label}
-          </button>
+          </Link>
         ))}
       </nav>
 
