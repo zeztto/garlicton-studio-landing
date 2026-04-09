@@ -90,7 +90,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     about: <About locale={locale} content={settings.aboutSection} />,
     portfolio: <Portfolio locale={locale} content={settings.portfolioSection} />,
     studio: <StudioGallery locale={locale} content={settings.studioSection} />,
-    contact: <Contact locale={locale} content={settings.contactSection} contactInfo={settings.contact} />,
+    contact: (
+      <Contact
+        locale={locale}
+        content={settings.contactSection}
+        contactInfo={settings.contact}
+        formContent={settings.contactForm}
+      />
+    ),
   }
 
   const orderedSections = getSectionOrder(settings.homepageLayout)

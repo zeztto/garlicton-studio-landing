@@ -7,6 +7,94 @@ import Script from 'next/script'
 type FormState = 'idle' | 'loading' | 'success' | 'error'
 
 const SERVICE_KEYS = ['recording', 'mixing', 'mastering', 'producing'] as const
+type ServiceKey = (typeof SERVICE_KEYS)[number]
+type CmsSource = Record<string, unknown> | null | undefined
+
+function getStringValue(source: CmsSource, keys: string[], fallback = ''): string {
+  for (const key of keys) {
+    const value = source?.[key]
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+
+  return fallback
+}
+
+function getLocalizedValue(
+  source: CmsSource,
+  keys: string[],
+  locale: string,
+  fallback: string,
+): string {
+  const suffix = locale === 'ko' ? 'ko' : 'en'
+
+  for (const key of keys) {
+    const localizedValue = source?.[`${key}_${suffix}`]
+    if (typeof localizedValue === 'string' && localizedValue.trim()) {
+      return localizedValue.trim()
+    }
+
+    const plainValue = source?.[key]
+    if (typeof plainValue === 'string' && plainValue.trim()) {
+      return plainValue.trim()
+    }
+  }
+
+  return fallback
+}
+
+function getRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null
+  }
+
+  return value as Record<string, unknown>
+}
+
+function getServiceOptions(source: CmsSource, locale: string, t: ReturnType<typeof useTranslations>) {
+  const configuredArrays = ['serviceOptions', 'servicesOptions', 'formServices', 'servicesList']
+
+  for (const key of configuredArrays) {
+    const value = source?.[key]
+    if (!Array.isArray(value)) {
+      continue
+    }
+
+    const options = value
+      .map((item) => {
+        const record = getRecord(item)
+        if (!record) {
+          return null
+        }
+
+        const rawValue = getStringValue(record, ['value', 'key', 'slug'])
+        if (!SERVICE_KEYS.includes(rawValue as ServiceKey)) {
+          return null
+        }
+
+        return {
+          value: rawValue as ServiceKey,
+          label: getLocalizedValue(record, ['label', 'name', 'title'], locale, t(rawValue)),
+        }
+      })
+      .filter((item): item is { value: ServiceKey; label: string } => item !== null)
+
+    if (options.length > 0) {
+      return options
+    }
+  }
+
+  return SERVICE_KEYS.map((key) => ({
+    value: key,
+    label: getLocalizedValue(
+      source,
+      [`service${key.charAt(0).toUpperCase()}${key.slice(1)}Label`, `${key}Label`, key],
+      locale,
+      t(key),
+    ),
+  }))
+}
 
 declare global {
   interface Window {
@@ -19,7 +107,13 @@ declare global {
   }
 }
 
-export function ContactForm({ locale }: { locale: string }) {
+export function ContactForm({
+  locale,
+  settings,
+}: {
+  locale: string
+  settings?: Record<string, unknown> | null
+}) {
   const t = useTranslations('contact')
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? ''
 
@@ -37,6 +131,72 @@ export function ContactForm({ locale }: { locale: string }) {
   const turnstileContainerRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
   const turnstileRendered = useRef(false)
+
+  const nameLabel = getLocalizedValue(settings, ['formNameLabel', 'nameLabel', 'name'], locale, t('name'))
+  const namePlaceholder = getLocalizedValue(
+    settings,
+    ['formNamePlaceholder', 'namePlaceholder'],
+    locale,
+    nameLabel,
+  )
+  const emailLabel = getLocalizedValue(settings, ['formEmailLabel', 'emailLabel', 'email'], locale, t('email'))
+  const emailPlaceholder = getLocalizedValue(
+    settings,
+    ['formEmailPlaceholder', 'emailPlaceholder'],
+    locale,
+    'email@example.com',
+  )
+  const phoneLabel = getLocalizedValue(settings, ['formPhoneLabel', 'phoneLabel', 'phone'], locale, t('phone'))
+  const phonePlaceholder = getLocalizedValue(
+    settings,
+    ['formPhonePlaceholder', 'phonePlaceholder'],
+    locale,
+    '010-0000-0000',
+  )
+  const servicesLabel = getLocalizedValue(
+    settings,
+    ['formServicesLabel', 'servicesLabel', 'services'],
+    locale,
+    t('services'),
+  )
+  const serviceOptions = getServiceOptions(settings, locale, t)
+  const genreLabel = getLocalizedValue(settings, ['formGenreLabel', 'genreLabel', 'genre'], locale, t('genre'))
+  const genrePlaceholder = getLocalizedValue(
+    settings,
+    ['formGenrePlaceholder', 'genrePlaceholder'],
+    locale,
+    'Heavy Metal, Thrash Metal...',
+  )
+  const messageLabel = getLocalizedValue(
+    settings,
+    ['formMessageLabel', 'messageLabel', 'message'],
+    locale,
+    t('message'),
+  )
+  const messagePlaceholder = getLocalizedValue(
+    settings,
+    ['formMessagePlaceholder', 'messagePlaceholder'],
+    locale,
+    t('messagePlaceholder'),
+  )
+  const submitLabel = getLocalizedValue(
+    settings,
+    ['formSubmitLabel', 'submitLabel', 'submit'],
+    locale,
+    t('submit'),
+  )
+  const successMessage = getLocalizedValue(
+    settings,
+    ['formSuccessMessage', 'successMessage', 'success'],
+    locale,
+    t('success'),
+  )
+  const errorMessage = getLocalizedValue(
+    settings,
+    ['formErrorMessage', 'errorMessage', 'error'],
+    locale,
+    t('error'),
+  )
 
   const renderTurnstile = () => {
     if (turnstileRendered.current) return
@@ -109,11 +269,11 @@ export function ContactForm({ locale }: { locale: string }) {
         }
       } else {
         setFormState('error')
-        setErrorMsg(data.error || t('error'))
+        setErrorMsg(data.error || errorMessage)
       }
     } catch {
       setFormState('error')
-      setErrorMsg(t('error'))
+      setErrorMsg(errorMessage)
     }
   }
 
@@ -141,7 +301,7 @@ export function ContactForm({ locale }: { locale: string }) {
       {/* Name */}
       <div className="flex flex-col gap-2">
         <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-name">
-          {t('name')} <span className="text-[#8B0000]">*</span>
+          {nameLabel} <span className="text-[#8B0000]">*</span>
         </label>
         <input
           id="contact-name"
@@ -150,14 +310,14 @@ export function ContactForm({ locale }: { locale: string }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           className={inputClass}
-          placeholder={t('name')}
+          placeholder={namePlaceholder}
         />
       </div>
 
       {/* Email */}
       <div className="flex flex-col gap-2">
         <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-email">
-          {t('email')} <span className="text-[#8B0000]">*</span>
+          {emailLabel} <span className="text-[#8B0000]">*</span>
         </label>
         <input
           id="contact-email"
@@ -166,14 +326,14 @@ export function ContactForm({ locale }: { locale: string }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={inputClass}
-          placeholder="email@example.com"
+          placeholder={emailPlaceholder}
         />
       </div>
 
       {/* Phone */}
       <div className="flex flex-col gap-2">
         <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-phone">
-          {t('phone')}
+          {phoneLabel}
         </label>
         <input
           id="contact-phone"
@@ -185,29 +345,29 @@ export function ContactForm({ locale }: { locale: string }) {
           }}
           pattern="[\d\-+() ]{0,20}"
           className={inputClass}
-          placeholder="010-0000-0000"
+          placeholder={phonePlaceholder}
         />
       </div>
 
       {/* Services checkboxes */}
       <div className="flex flex-col gap-3">
-        <p className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]">{t('services')}</p>
+        <p className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]">{servicesLabel}</p>
         <div className="grid grid-cols-2 gap-3">
-          {SERVICE_KEYS.map((key) => (
+          {serviceOptions.map((option) => (
             <button
-              key={key}
+              key={option.value}
               type="button"
-              onClick={() => toggleService(key)}
+              onClick={() => toggleService(option.value)}
               className="flex items-center gap-3 cursor-pointer group text-left"
             >
               <span
                 className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
-                  selectedServices.includes(key)
+                  selectedServices.includes(option.value)
                     ? 'bg-[#8B0000] border-[#8B0000]'
                     : 'border-white/20 group-hover:border-white/40'
                 }`}
               >
-                {selectedServices.includes(key) && (
+                {selectedServices.includes(option.value) && (
                   <svg
                     className="w-2.5 h-2.5 text-white"
                     viewBox="0 0 10 8"
@@ -221,7 +381,7 @@ export function ContactForm({ locale }: { locale: string }) {
                   </svg>
                 )}
               </span>
-              <span className="text-sm text-[#FFFFFFDD]">{t(key)}</span>
+              <span className="text-sm text-[#FFFFFFDD]">{option.label}</span>
             </button>
           ))}
         </div>
@@ -230,7 +390,7 @@ export function ContactForm({ locale }: { locale: string }) {
       {/* Genre */}
       <div className="flex flex-col gap-2">
         <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-genre">
-          {t('genre')}
+          {genreLabel}
         </label>
         <input
           id="contact-genre"
@@ -238,14 +398,14 @@ export function ContactForm({ locale }: { locale: string }) {
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
           className={inputClass}
-          placeholder={locale === 'ko' ? 'Heavy Metal, Thrash Metal...' : 'Heavy Metal, Thrash Metal...'}
+          placeholder={genrePlaceholder}
         />
       </div>
 
       {/* Message */}
       <div className="flex flex-col gap-2">
         <label className="text-[12px] tracking-[0.15em] uppercase text-[#CCCCCC]" htmlFor="contact-message">
-          {t('message')} <span className="text-[#8B0000]">*</span>
+          {messageLabel} <span className="text-[#8B0000]">*</span>
         </label>
         <textarea
           id="contact-message"
@@ -254,7 +414,7 @@ export function ContactForm({ locale }: { locale: string }) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           className={`${inputClass} resize-none`}
-          placeholder={t('messagePlaceholder')}
+          placeholder={messagePlaceholder}
         />
       </div>
 
@@ -290,7 +450,7 @@ export function ContactForm({ locale }: { locale: string }) {
             />
           </svg>
         )}
-        {t('submit')}
+        {submitLabel}
       </button>
 
       {/* Toast messages */}
@@ -303,7 +463,7 @@ export function ContactForm({ locale }: { locale: string }) {
               clipRule="evenodd"
             />
           </svg>
-          <p style={{ fontFamily }}>{t('success')}</p>
+          <p style={{ fontFamily }}>{successMessage}</p>
         </div>
       )}
 
@@ -316,7 +476,7 @@ export function ContactForm({ locale }: { locale: string }) {
               clipRule="evenodd"
             />
           </svg>
-          <p style={{ fontFamily }}>{errorMsg || t('error')}</p>
+          <p style={{ fontFamily }}>{errorMsg || errorMessage}</p>
         </div>
       )}
     </form>

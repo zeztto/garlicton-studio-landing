@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { Fragment } from 'react'
 import { getPayloadClient } from '@/lib/payload'
 import { getLocalizedText } from '@/lib/site-settings'
 
@@ -14,11 +15,139 @@ interface CareerItem {
   description_en?: string | null
 }
 
+type RichTextNode = {
+  type?: string
+  text?: string
+  format?: number
+  tag?: string
+  listType?: string
+  url?: string
+  children?: RichTextNode[]
+  fields?: {
+    url?: string
+    newTab?: boolean
+  }
+}
+
+type RichTextValue = {
+  root?: {
+    children?: RichTextNode[]
+  }
+} | null
+
+function hasRichTextContent(value: RichTextValue): boolean {
+  const children = value?.root?.children
+
+  return Array.isArray(children) && children.length > 0
+}
+
+function renderTextNode(node: RichTextNode) {
+  let content: React.ReactNode = node.text ?? ''
+  const format = typeof node.format === 'number' ? node.format : 0
+
+  if (format & 1) {
+    content = <strong>{content}</strong>
+  }
+  if (format & 2) {
+    content = <em>{content}</em>
+  }
+  if (format & 4) {
+    content = <span className="line-through">{content}</span>
+  }
+  if (format & 8) {
+    content = <span className="underline">{content}</span>
+  }
+
+  return content
+}
+
+function renderRichTextChildren(children: RichTextNode[] | undefined, keyPrefix: string): React.ReactNode {
+  if (!Array.isArray(children) || children.length === 0) {
+    return null
+  }
+
+  return children.map((child, index) => (
+    <Fragment key={`${keyPrefix}-${index}`}>
+      {renderRichTextNode(child, `${keyPrefix}-${index}`)}
+    </Fragment>
+  ))
+}
+
+function renderRichTextNode(node: RichTextNode, key: string): React.ReactNode {
+  switch (node.type) {
+    case 'paragraph':
+      return (
+        <p className="text-[clamp(0.875rem,1.3vw,0.95rem)] leading-[1.9] text-[#D8D8D8]">
+          {renderRichTextChildren(node.children, key)}
+        </p>
+      )
+    case 'heading': {
+      const tag = node.tag === 'h1' || node.tag === 'h2' || node.tag === 'h3' || node.tag === 'h4'
+        ? node.tag
+        : 'h3'
+      if (tag === 'h1') {
+        return <h3 className="text-xl text-[#F0F0F0] font-semibold">{renderRichTextChildren(node.children, key)}</h3>
+      }
+      if (tag === 'h2') {
+        return <h3 className="text-lg text-[#F0F0F0] font-semibold">{renderRichTextChildren(node.children, key)}</h3>
+      }
+      if (tag === 'h3') {
+        return <h4 className="text-base text-[#F0F0F0] font-semibold">{renderRichTextChildren(node.children, key)}</h4>
+      }
+      return <h5 className="text-sm text-[#F0F0F0] font-semibold">{renderRichTextChildren(node.children, key)}</h5>
+    }
+    case 'list':
+      if (node.listType === 'number') {
+        return (
+          <ol className="list-decimal pl-5 space-y-2 text-[#D8D8D8]">
+            {renderRichTextChildren(node.children, key)}
+          </ol>
+        )
+      }
+      return (
+        <ul className="list-disc pl-5 space-y-2 text-[#D8D8D8]">
+          {renderRichTextChildren(node.children, key)}
+        </ul>
+      )
+    case 'listitem':
+      return <li>{renderRichTextChildren(node.children, key)}</li>
+    case 'quote':
+      return (
+        <blockquote className="border-l border-[#8B0000]/60 pl-4 italic text-[#E0E0E0]">
+          {renderRichTextChildren(node.children, key)}
+        </blockquote>
+      )
+    case 'link': {
+      const href = node.fields?.url || node.url
+      const isExternal = typeof href === 'string' && /^https?:\/\//.test(href)
+      if (!href) {
+        return renderRichTextChildren(node.children, key)
+      }
+      return (
+        <a
+          href={href}
+          target={isExternal ? '_blank' : undefined}
+          rel={isExternal ? 'noopener noreferrer' : undefined}
+          className="text-[#F0F0F0] underline underline-offset-4 hover:text-white"
+        >
+          {renderRichTextChildren(node.children, key)}
+        </a>
+      )
+    }
+    case 'linebreak':
+      return <br />
+    case 'text':
+    default:
+      return renderTextNode(node)
+  }
+}
+
 export async function About({ locale, content }: AboutProps) {
   let name = locale === 'ko' ? '이주희' : 'Lee Ju Hee'
   let title = 'Founder / Producer / Mixer / Mastering Engineer'
   let career: CareerItem[] = []
   let profileImageUrl = 'https://res.cloudinary.com/dnlcuy2aj/image/upload/v1774365620/garlicton/profile.jpg'
+  let bio: RichTextValue = null
 
   try {
     const payload = await getPayloadClient()
@@ -30,6 +159,7 @@ export async function About({ locale, content }: AboutProps) {
       ? (data.title_ko ?? title)
       : (data.title_en ?? title)
     career = (data.career ?? []) as CareerItem[]
+    bio = (locale === 'ko' ? data.bio_ko : data.bio_en) as RichTextValue
     const profileImg = data.profileImage as { url?: string } | null
     if (profileImg?.url) {
       profileImageUrl = profileImg.url
@@ -81,6 +211,7 @@ export async function About({ locale, content }: AboutProps) {
     locale,
     locale === 'ko' ? '노미네이트' : 'Nominations',
   )
+  const hasBio = hasRichTextContent(bio)
 
   return (
     <section id="about" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
@@ -179,9 +310,17 @@ export async function About({ locale, content }: AboutProps) {
             </div>
           </div>
 
-          {/* Right: career timeline */}
-          {career.length > 0 && (
+          {/* Right: bio + career timeline */}
+          {(hasBio || career.length > 0) && (
             <div className="flex flex-col gap-0">
+              {hasBio && (
+                <div
+                  className="mb-8 space-y-4"
+                  style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
+                >
+                  {renderRichTextChildren(bio?.root?.children, 'about-bio')}
+                </div>
+              )}
               {career.map((item, index) => {
                 const desc = locale === 'ko' ? item.description_ko : item.description_en
                 const award = isAward(item)

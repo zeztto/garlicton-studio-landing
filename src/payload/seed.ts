@@ -234,7 +234,15 @@ export async function seed(payload: Payload): Promise<void> {
     // Check if site-settings needs re-seeding (schema changed)
     try {
       const settings = await payload.findGlobal({ slug: 'site-settings' })
-      if (!settings.header?.siteName || !settings.homepageLayout?.sectionOrder?.length) {
+      if (
+        !settings.header?.siteName ||
+        !settings.homepageLayout?.sectionOrder?.length ||
+        !settings.contactForm?.nameLabel_ko ||
+        typeof settings.contact?.mapLatitude !== 'number' ||
+        typeof settings.footer?.showInstagram !== 'boolean' ||
+        !settings.contactSection?.phoneLabel_ko ||
+        !settings.footer?.contactTitle_ko
+      ) {
         payload.logger.info('SiteSettings needs update. Re-seeding...')
         await seedSiteSettings(payload)
         needsWork = true
@@ -467,17 +475,93 @@ async function seedSiteSettings(payload: Payload): Promise<void> {
         subtitle_en: 'Feel free to reach out.',
         reservation_ko: '갈릭톤 스튜디오는 100% 예약제로 운영되며 방문 전 문의가 필요합니다.',
         reservation_en: 'Garlicton Studio operates 100% by reservation. Please inquire before visiting.',
+        phoneLabel_ko: '전화번호',
+        phoneLabel_en: 'Phone',
+        addressLabel_ko: '주소',
+        addressLabel_en: 'Address',
+        emailLabel_ko: '이메일',
+        emailLabel_en: 'Email',
+        instagramLabel_ko: '인스타그램',
+        instagramLabel_en: 'Instagram',
+        kakaoChannelLabel_ko: '카카오 채널',
+        kakaoChannelLabel_en: 'Kakao Channel',
+      },
+      contactForm: {
+        nameLabel_ko: '이름',
+        nameLabel_en: 'Name',
+        namePlaceholder_ko: '성함을 입력해주세요',
+        namePlaceholder_en: 'Your name',
+        emailLabel_ko: '이메일',
+        emailLabel_en: 'Email',
+        emailPlaceholder_ko: 'email@example.com',
+        emailPlaceholder_en: 'email@example.com',
+        phoneLabel_ko: '전화번호',
+        phoneLabel_en: 'Phone',
+        phonePlaceholder_ko: '연락 가능한 번호를 입력해주세요',
+        phonePlaceholder_en: 'Best phone number to reach you',
+        servicesLabel_ko: '원하시는 서비스',
+        servicesLabel_en: 'Services Needed',
+        servicesPlaceholder_ko: '필요한 작업을 선택해주세요',
+        servicesPlaceholder_en: 'Select the services you need',
+        genreLabel_ko: '장르 / 레퍼런스',
+        genreLabel_en: 'Genre / Reference',
+        genrePlaceholder_ko: '작업 방향이나 참고 아티스트를 알려주세요',
+        genrePlaceholder_en: 'Tell us your genre or references',
+        messageLabel_ko: '문의 내용',
+        messageLabel_en: 'Message',
+        messagePlaceholder_ko: '프로젝트 내용과 일정, 궁금한 점을 자유롭게 남겨주세요',
+        messagePlaceholder_en: 'Tell us about your project, timeline, and any questions',
+        submitLabel_ko: '문의 보내기',
+        submitLabel_en: 'Send Inquiry',
+        successMessage_ko: '문의가 접수되었습니다. 빠르게 확인 후 연락드리겠습니다.',
+        successMessage_en: 'Your inquiry has been received. We will get back to you soon.',
+        errorMessage_ko: '전송 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        errorMessage_en: 'Something went wrong while sending your inquiry. Please try again later.',
+        serviceRecordingLabel_ko: '레코딩',
+        serviceRecordingLabel_en: 'Recording',
+        serviceMixingLabel_ko: '믹싱',
+        serviceMixingLabel_en: 'Mixing',
+        serviceMasteringLabel_ko: '마스터링',
+        serviceMasteringLabel_en: 'Mastering',
+        serviceProducingLabel_ko: '프로듀싱',
+        serviceProducingLabel_en: 'Producing',
       },
       contact: {
         phone: '0507-1313-6843',
+        email: '',
+        emailDisplay: '',
         address_ko: '인천 강화군 강화읍 북문길67번길 8-1',
         address_en: '8-1, Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon',
+        mapPlaceName_ko: '갈릭톤 스튜디오',
+        mapPlaceName_en: 'Garlicton Studio',
+        mapLatitude: 37.752179,
+        mapLongitude: 126.48305,
+        mapFallbackLabel_ko: '카카오맵에서 보기',
+        mapFallbackLabel_en: 'View on Kakao Map',
         instagramUrl: 'https://www.instagram.com/garlicton_studio',
+        kakaoChannelUrl: '',
       },
       footer: {
         copyright_ko: '© {year} Garlicton Recording Studio. All rights reserved.',
         copyright_en: '© {year} Garlicton Recording Studio. All rights reserved.',
         location: 'South Korea',
+        description_ko: '갈릭톤 스튜디오는 메탈 음악의 에너지와 디테일을 끝까지 책임지는 레코딩 스튜디오입니다.',
+        description_en: 'Garlicton Studio is a recording studio that carries the energy and detail of metal music through to the end.',
+        contactTitle_ko: 'Contact',
+        contactTitle_en: 'Contact',
+        phoneLabel_ko: '전화번호',
+        phoneLabel_en: 'Phone',
+        addressLabel_ko: '주소',
+        addressLabel_en: 'Address',
+        emailLabel_ko: '이메일',
+        emailLabel_en: 'Email',
+        instagramLabel_ko: '인스타그램',
+        instagramLabel_en: 'Instagram',
+        kakaoChannelLabel_ko: '카카오 채널',
+        kakaoChannelLabel_en: 'Kakao Channel',
+        showEmail: true,
+        showInstagram: true,
+        showKakaoChannel: false,
       },
       seo: {
         metaTitle_ko: '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다',
