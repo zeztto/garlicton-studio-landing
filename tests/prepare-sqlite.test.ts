@@ -441,6 +441,7 @@ test('seedGalleryAssets fails fast when gallery remains partially seeded', { con
   try {
     await assert.rejects(
       seedGalleryAssets({
+        log: () => {},
         loadRuntime: async () => ({
           config: {},
           getPayload: async () => ({

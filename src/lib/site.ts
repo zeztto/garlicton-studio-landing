@@ -1,2 +1,3 @@
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.garlicton.com'
+import { getSiteUrl } from './runtime-config.ts'
+
+export const SITE_URL = getSiteUrl()

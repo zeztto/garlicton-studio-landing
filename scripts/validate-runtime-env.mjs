@@ -1,19 +1,13 @@
-const requiredEnv = ['DATABASE_URI', 'PAYLOAD_SECRET']
+import {
+  getMissingEnvKeys,
+  PRODUCTION_RUNTIME_ENV_KEYS,
+  REQUIRED_RUNTIME_ENV_KEYS,
+} from './runtime-env.mjs'
 
-const productionRequiredEnv = [
-  'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET',
-  'NEXT_PUBLIC_SITE_URL',
-  'PREVIEW_SECRET',
-  'NEXT_PUBLIC_TURNSTILE_SITE_KEY',
-  'TURNSTILE_SECRET_KEY',
-]
-
-const missing = requiredEnv.filter((key) => !process.env[key]?.trim())
+const missing = getMissingEnvKeys(REQUIRED_RUNTIME_ENV_KEYS)
 
 if (process.env.NODE_ENV === 'production') {
-  missing.push(...productionRequiredEnv.filter((key) => !process.env[key]?.trim()))
+  missing.push(...getMissingEnvKeys(PRODUCTION_RUNTIME_ENV_KEYS))
 }
 
 if (missing.length > 0) {

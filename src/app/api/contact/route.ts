@@ -5,7 +5,11 @@ import { getPayloadClient } from '@/lib/payload'
 
 const CONTACT_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
 const CONTACT_RATE_LIMIT_MAX_REQUESTS = 5
-const ALLOWED_SERVICE_VALUES = new Set(['recording', 'mixing', 'mastering', 'producing'])
+const ALLOWED_SERVICE_VALUES = ['recording', 'mixing', 'mastering', 'producing'] as const
+
+type AllowedService = (typeof ALLOWED_SERVICE_VALUES)[number]
+
+const ALLOWED_SERVICE_SET = new Set<AllowedService>(ALLOWED_SERVICE_VALUES)
 
 type RateLimitEntry = {
   count: number
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
   const normalizedGenre = typeof genre === 'string' ? genre.trim() : ''
   const normalizedMessage = typeof message === 'string' ? message.trim() : ''
   const normalizedServices = Array.isArray(services)
-    ? services.filter((service): service is string => typeof service === 'string' && ALLOWED_SERVICE_VALUES.has(service))
+    ? services.filter(isAllowedService)
     : []
   const captchaRequired = process.env.NODE_ENV === 'production'
   const turnstileSecret = process.env.TURNSTILE_SECRET_KEY?.trim()
@@ -187,6 +191,10 @@ function escapeHtml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;')
+}
+
+function isAllowedService(service: unknown): service is AllowedService {
+  return typeof service === 'string' && ALLOWED_SERVICE_SET.has(service as AllowedService)
 }
 
 function getClientIp(req: NextRequest): string {

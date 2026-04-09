@@ -6,6 +6,10 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import { cloudinaryAdapter } from './src/lib/cloudinary-adapter.ts'
+import {
+  requireCloudinaryRuntimeConfig,
+  requirePayloadSecret,
+} from './src/lib/runtime-config.ts'
 
 import { Media } from './src/payload/collections/Media.ts'
 import { Services } from './src/payload/collections/Services.ts'
@@ -18,33 +22,8 @@ import { About } from './src/payload/globals/About.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const isProduction = process.env.NODE_ENV === 'production'
-const cloudinaryCloudName =
-  process.env.CLOUDINARY_CLOUD_NAME?.trim() ||
-  (isProduction ? undefined : 'dnlcuy2aj')
-const cloudinaryApiKey =
-  process.env.CLOUDINARY_API_KEY?.trim() ||
-  (isProduction ? undefined : '')
-const cloudinaryApiSecret =
-  process.env.CLOUDINARY_API_SECRET?.trim() ||
-  (isProduction ? undefined : '')
-const payloadSecret =
-  process.env.PAYLOAD_SECRET?.trim() ||
-  (isProduction ? undefined : 'development-only-payload-secret')
-
-if (isProduction && (!cloudinaryCloudName || !cloudinaryApiKey || !cloudinaryApiSecret)) {
-  throw new Error(
-    '[payload.config] CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be set in production.',
-  )
-}
-
-const resolvedCloudinaryCloudName = cloudinaryCloudName ?? 'dnlcuy2aj'
-const resolvedCloudinaryApiKey = cloudinaryApiKey ?? ''
-const resolvedCloudinaryApiSecret = cloudinaryApiSecret ?? ''
-
-if (!payloadSecret) {
-  throw new Error('[payload.config] PAYLOAD_SECRET must be set in production.')
-}
+const payloadSecret = requirePayloadSecret('payload.config')
+const cloudinaryConfig = requireCloudinaryRuntimeConfig('payload.config')
 
 export default buildConfig({
   admin: {
@@ -77,15 +56,15 @@ export default buildConfig({
       collections: {
         media: {
           adapter: cloudinaryAdapter({
-            cloudName: resolvedCloudinaryCloudName,
-            apiKey: resolvedCloudinaryApiKey,
-            apiSecret: resolvedCloudinaryApiSecret,
+            cloudName: cloudinaryConfig.cloudName,
+            apiKey: cloudinaryConfig.apiKey,
+            apiSecret: cloudinaryConfig.apiSecret,
           }),
           disableLocalStorage: true,
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename }) => {
             const name = filename.replace(/\.[^.]+$/, '') // remove extension
-            return `https://res.cloudinary.com/${resolvedCloudinaryCloudName}/image/upload/garlicton/${name}`
+            return `https://res.cloudinary.com/${cloudinaryConfig.cloudName}/image/upload/garlicton/${name}`
           },
         },
       },

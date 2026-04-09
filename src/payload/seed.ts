@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 import path from 'path'
 import fs from 'fs'
+import { hasCloudinaryRuntimeConfig } from '../lib/runtime-config.ts'
 
 type SeedPhase = 'bootstrap' | 'backfill'
 type SeedOptions = {
@@ -19,6 +20,18 @@ type GallerySeedOptions = {
   force?: boolean
   imageDir?: string
   galleryImages?: GallerySeedImage[]
+}
+
+type PortfolioSeedItem = {
+  title_ko: string
+  title_en: string
+  artist: string
+  genre: string
+  description_ko: string
+  description_en: string
+  mediaType: 'youtube' | 'soundcloud' | 'spotify'
+  embedUrl: string
+  sortOrder: number
 }
 
 const servicesData = [
@@ -62,7 +75,7 @@ const servicesData = [
   },
 ]
 
-const portfolioData = [
+const portfolioData: PortfolioSeedItem[] = [
   {
     title_ko: '메써드 - Definition of Method',
     title_en: 'Method - Definition of Method',
@@ -968,13 +981,7 @@ export async function seedGalleryUploads(
     phase = 'backfill',
   }: GallerySeedOptions = {},
 ): Promise<boolean> {
-  const hasCloudinaryConfig = Boolean(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET,
-  )
-
-  if (!hasCloudinaryConfig) {
+  if (!hasCloudinaryRuntimeConfig()) {
     payload.logger.info(`Skipping gallery seed upload during ${phase} because Cloudinary credentials are missing.`)
     return false
   }

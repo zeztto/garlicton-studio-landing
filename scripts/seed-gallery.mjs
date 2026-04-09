@@ -2,27 +2,15 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { loadPrepareRuntime } from './prepare-sqlite.mjs'
+import { CLOUDINARY_ENV_KEYS, getMissingEnvKeys } from './runtime-env.mjs'
 
 const LOG_PREFIX = '[seed-gallery]'
-const CLOUDINARY_ENV_KEYS = [
-  'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET',
-]
-
-function hasConfiguredValue(value) {
-  return typeof value === 'string' && value.trim().length > 0
-}
-
-function getMissingCloudinaryEnvKeys() {
-  return CLOUDINARY_ENV_KEYS.filter((key) => !hasConfiguredValue(process.env[key]))
-}
 
 export async function seedGalleryAssets({
   log = console.log,
   loadRuntime = loadPrepareRuntime,
 } = {}) {
-  const missingCloudinaryEnvKeys = getMissingCloudinaryEnvKeys()
+  const missingCloudinaryEnvKeys = getMissingEnvKeys(CLOUDINARY_ENV_KEYS)
 
   if (missingCloudinaryEnvKeys.length > 0) {
     throw new Error(

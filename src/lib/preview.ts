@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
 import { normalizePageSlug } from './pages-workflow.ts'
-import { SITE_URL } from './site.ts'
+import { getPreviewSecret, getSiteUrl } from './runtime-config.ts'
 
 const DEFAULT_PAGE_PREVIEW_LOCALE = 'ko'
 const PAGE_PREVIEW_ROUTE = '/api/preview'
@@ -9,12 +9,6 @@ export type PagePreviewLocale = 'ko' | 'en'
 
 export const normalizePreviewLocale = (locale?: null | string): PagePreviewLocale => {
   return locale === 'en' ? 'en' : DEFAULT_PAGE_PREVIEW_LOCALE
-}
-
-export const getPreviewSecret = (): null | string => {
-  const secret = process.env.PREVIEW_SECRET?.trim()
-
-  return secret ? secret : null
 }
 
 export const isValidPreviewSecret = (candidate?: null | string): boolean => {
@@ -102,7 +96,7 @@ export const buildPagePreviewURL = ({
     return null
   }
 
-  const previewURL = new URL(PAGE_PREVIEW_ROUTE, SITE_URL)
+  const previewURL = new URL(PAGE_PREVIEW_ROUTE, getSiteUrl())
 
   previewURL.searchParams.set('collection', 'pages')
   previewURL.searchParams.set('locale', normalizePreviewLocale(locale))

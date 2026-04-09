@@ -2,12 +2,14 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
+import {
+  CLOUDINARY_ENV_KEYS,
+  hasConfiguredValue,
+  restoreEnv,
+  snapshotEnv,
+} from './runtime-env.mjs'
+
 const LOG_PREFIX = '[prepare-sqlite]'
-const CLOUDINARY_ENV_KEYS = [
-  'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET',
-]
 
 export async function loadPrepareRuntime() {
   const [{ getPayload }, configModule, seedModule] = await Promise.all([
@@ -25,14 +27,8 @@ export async function loadPrepareRuntime() {
   }
 }
 
-function hasConfiguredValue(value) {
-  return typeof value === 'string' && value.trim().length > 0
-}
-
 export async function withSuppressedGallerySeed(fn, { log = console.log } = {}) {
-  const snapshot = Object.fromEntries(
-    CLOUDINARY_ENV_KEYS.map((key) => [key, process.env[key]]),
-  )
+  const snapshot = snapshotEnv(CLOUDINARY_ENV_KEYS)
   const hadCloudinaryCredentials = Object.values(snapshot).some(hasConfiguredValue)
 
   if (hadCloudinaryCredentials) {
@@ -48,13 +44,7 @@ export async function withSuppressedGallerySeed(fn, { log = console.log } = {}) 
   try {
     return await fn()
   } finally {
-    for (const [key, value] of Object.entries(snapshot)) {
-      if (typeof value === 'undefined') {
-        delete process.env[key]
-      } else {
-        process.env[key] = value
-      }
-    }
+    restoreEnv(snapshot)
   }
 }
 
