@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "prepare:sqlite": "node scripts/prepare-sqlite.mjs",
+    "seed:gallery": "node scripts/seed-gallery.mjs",
     "start": "node scripts/validate-runtime-env.mjs && npm run prepare:sqlite && next start",
     "lint": "next lint",
     "test": "tsx --test tests/**/*.test.ts"

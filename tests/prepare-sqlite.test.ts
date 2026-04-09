@@ -5,9 +5,83 @@ import os from 'node:os'
 import path from 'node:path'
 import type { Payload } from 'payload'
 import { prepareSqlite } from '../scripts/prepare-sqlite.mjs'
-import { seed } from '../src/payload/seed'
+import { seedGalleryAssets } from '../scripts/seed-gallery.mjs'
+import { seed, seedGalleryUploads } from '../src/payload/seed'
 
 const ORIGINAL_DATABASE_URI = process.env.DATABASE_URI
+const ORIGINAL_CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME
+const ORIGINAL_CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY
+const ORIGINAL_CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET
+const ORIGINAL_SEED_GALLERY_UPLOADS = process.env.SEED_GALLERY_UPLOADS
+
+function restoreSeedEnv() {
+  if (typeof ORIGINAL_CLOUDINARY_CLOUD_NAME === 'string') {
+    process.env.CLOUDINARY_CLOUD_NAME = ORIGINAL_CLOUDINARY_CLOUD_NAME
+  } else {
+    delete process.env.CLOUDINARY_CLOUD_NAME
+  }
+
+  if (typeof ORIGINAL_CLOUDINARY_API_KEY === 'string') {
+    process.env.CLOUDINARY_API_KEY = ORIGINAL_CLOUDINARY_API_KEY
+  } else {
+    delete process.env.CLOUDINARY_API_KEY
+  }
+
+  if (typeof ORIGINAL_CLOUDINARY_API_SECRET === 'string') {
+    process.env.CLOUDINARY_API_SECRET = ORIGINAL_CLOUDINARY_API_SECRET
+  } else {
+    delete process.env.CLOUDINARY_API_SECRET
+  }
+
+  if (typeof ORIGINAL_SEED_GALLERY_UPLOADS === 'string') {
+    process.env.SEED_GALLERY_UPLOADS = ORIGINAL_SEED_GALLERY_UPLOADS
+  } else {
+    delete process.env.SEED_GALLERY_UPLOADS
+  }
+}
+
+function setCloudinaryEnv() {
+  process.env.CLOUDINARY_CLOUD_NAME = 'test-cloud'
+  process.env.CLOUDINARY_API_KEY = 'test-key'
+  process.env.CLOUDINARY_API_SECRET = 'test-secret'
+}
+
+function createCompleteAbout() {
+  return {
+    name_ko: '이주희',
+    name_en: 'Lee Ju Hee',
+    title_ko: 'Founder / Producer / Mixer / Mastering Engineer',
+    title_en: 'Founder / Producer / Mixer / Mastering Engineer',
+    career: [{ period: '2024', description_ko: 'ok', description_en: 'ok' }],
+  }
+}
+
+function createCompleteSiteSettings() {
+  return {
+    header: {
+      siteName: 'GARLICTON RECORDING STUDIO',
+    },
+    homepageLayout: {
+      sectionOrder: [{ section: 'hero' }],
+    },
+    contactForm: {
+      nameLabel_ko: '이름',
+    },
+    contact: {
+      mapLatitude: 37.75,
+    },
+    footer: {
+      showInstagram: true,
+      contactTitle_ko: 'Contact',
+    },
+    contactSection: {
+      phoneLabel_ko: '전화번호',
+    },
+    pagesIndex: {
+      navLabel_ko: '페이지',
+    },
+  }
+}
 
 async function withTempSqlite(run: (databaseUri: string, tempDir: string) => Promise<void>) {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'garlicton-prepare-test-'))
@@ -46,6 +120,7 @@ function createMockPayload({
   const creates: Array<{ collection: string; data: Record<string, any> }> = []
   const globalUpdates: Array<{ slug: string; data: Record<string, any> }> = []
   const logs = {
+    error: [] as string[],
     info: [] as string[],
     warn: [] as string[],
   }
@@ -90,6 +165,7 @@ function createMockPayload({
       throw new Error(`Unexpected global lookup: ${slug}`)
     },
     logger: {
+      error: (message: string) => logs.error.push(message),
       info: (message: string) => logs.info.push(message),
       warn: (message: string) => logs.warn.push(message),
     },
@@ -246,4 +322,138 @@ test('seed skips unsafe site-settings reseed when global read fails on repair pa
     ),
     true,
   )
+})
+
+test('seed skips gallery upload by default during runtime prepare even when gallery is empty', { concurrency: false }, async () => {
+  setCloudinaryEnv()
+  delete process.env.SEED_GALLERY_UPLOADS
+
+  try {
+    const { creates, logs, payload } = createMockPayload({
+      about: createCompleteAbout(),
+      galleryDocs: 0,
+      portfolioDocs: 15,
+      servicesDocs: 4,
+      siteSettings: createCompleteSiteSettings(),
+    })
+
+    await seed(payload, { isFreshDatabase: false })
+
+    assert.equal(creates.some((entry) => entry.collection === 'media'), false)
+    assert.equal(creates.some((entry) => entry.collection === 'gallery'), false)
+    assert.equal(
+      logs.info.some((message) => message.includes('Gallery media upload seed is explicit opt-in. Skipping')),
+      true,
+    )
+  } finally {
+    restoreSeedEnv()
+  }
+})
+
+test('seedGalleryUploads creates media and gallery entries only on explicit opt-in path', { concurrency: false }, async () => {
+  setCloudinaryEnv()
+  delete process.env.SEED_GALLERY_UPLOADS
+
+  try {
+    const { creates, logs, payload } = createMockPayload({
+      about: createCompleteAbout(),
+      galleryDocs: 0,
+      portfolioDocs: 15,
+      servicesDocs: 4,
+      siteSettings: createCompleteSiteSettings(),
+    })
+
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'garlicton-gallery-seed-test-'))
+
+    try {
+      await fs.writeFile(path.join(tempDir, 'seed-image.jpg'), 'fake-image')
+
+      const created = await seedGalleryUploads(payload, {
+        phase: 'bootstrap',
+        galleryImages: [
+          {
+            caption_en: 'Seed image',
+            caption_ko: '시드 이미지',
+            file: 'seed-image.jpg',
+          },
+        ],
+        imageDir: tempDir,
+      })
+
+      assert.equal(created, true)
+      assert.equal(creates.filter((entry) => entry.collection === 'media').length, 1)
+      assert.equal(creates.filter((entry) => entry.collection === 'gallery').length, 1)
+      assert.equal(
+        logs.info.some((message) => message.includes('Explicit gallery upload seed created 1 gallery items')),
+        true,
+      )
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true })
+    }
+  } finally {
+    restoreSeedEnv()
+  }
+})
+
+test('seedGalleryAssets uses the explicit gallery upload helper instead of runtime prepare seed', { concurrency: false }, async () => {
+  setCloudinaryEnv()
+
+  try {
+    let explicitUploadCalled = false
+    const logs: string[] = []
+
+    const result = await seedGalleryAssets({
+      log: (message) => logs.push(message),
+      loadRuntime: async () => ({
+        config: {},
+        getPayload: async () => ({
+          destroy: async () => {},
+          find: async ({ collection }: { collection: string }) => {
+            if (collection !== 'gallery') {
+              throw new Error(`Unexpected collection lookup: ${collection}`)
+            }
+
+            return { totalDocs: 1, docs: [] }
+          },
+        }),
+        seedGalleryUploads: async () => {
+          explicitUploadCalled = true
+          return true
+        },
+        starterGallerySeedCount: 1,
+      }),
+    })
+
+    assert.equal(explicitUploadCalled, true)
+    assert.equal(result.totalDocs, 1)
+    assert.equal(
+      logs.some((message) => message.includes('Running explicit starter gallery upload with Cloudinary enabled.')),
+      true,
+    )
+  } finally {
+    restoreSeedEnv()
+  }
+})
+
+test('seedGalleryAssets fails fast when gallery remains partially seeded', { concurrency: false }, async () => {
+  setCloudinaryEnv()
+
+  try {
+    await assert.rejects(
+      seedGalleryAssets({
+        loadRuntime: async () => ({
+          config: {},
+          getPayload: async () => ({
+            destroy: async () => {},
+            find: async () => ({ totalDocs: 3, docs: [] }),
+          }),
+          seedGalleryUploads: async () => false,
+          starterGallerySeedCount: 12,
+        }),
+      }),
+      /Gallery seed is incomplete \(3\/12\)/,
+    )
+  } finally {
+    restoreSeedEnv()
+  }
 })

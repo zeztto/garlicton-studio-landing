@@ -3,8 +3,13 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const LOG_PREFIX = '[prepare-sqlite]'
+const CLOUDINARY_ENV_KEYS = [
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
+]
 
-async function loadPrepareRuntime() {
+export async function loadPrepareRuntime() {
   const [{ getPayload }, configModule, seedModule] = await Promise.all([
     import('payload'),
     import(pathToFileURL(path.resolve(process.cwd(), 'payload.config.ts')).href),
@@ -15,6 +20,41 @@ async function loadPrepareRuntime() {
     config: configModule.default ?? configModule,
     getPayload,
     seed: seedModule.seed,
+    seedGalleryUploads: seedModule.seedGalleryUploads,
+    starterGallerySeedCount: seedModule.starterGallerySeedCount,
+  }
+}
+
+function hasConfiguredValue(value) {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+export async function withSuppressedGallerySeed(fn, { log = console.log } = {}) {
+  const snapshot = Object.fromEntries(
+    CLOUDINARY_ENV_KEYS.map((key) => [key, process.env[key]]),
+  )
+  const hadCloudinaryCredentials = Object.values(snapshot).some(hasConfiguredValue)
+
+  if (hadCloudinaryCredentials) {
+    log(
+      `${LOG_PREFIX} Suppressing Cloudinary-backed gallery seed during prepare. Run \`npm run seed:gallery\` for explicit starter media upload.`,
+    )
+  }
+
+  for (const key of CLOUDINARY_ENV_KEYS) {
+    delete process.env[key]
+  }
+
+  try {
+    return await fn()
+  } finally {
+    for (const [key, value] of Object.entries(snapshot)) {
+      if (typeof value === 'undefined') {
+        delete process.env[key]
+      } else {
+        process.env[key] = value
+      }
+    }
   }
 }
 
@@ -81,9 +121,13 @@ export async function prepareSqlite({
 
   try {
     payload = await getPayload({ config })
-    await seed(payload, {
-      isFreshDatabase: !beforeState.exists || beforeState.size === 0,
-    })
+    await withSuppressedGallerySeed(
+      () =>
+        seed(payload, {
+          isFreshDatabase: !beforeState.exists || beforeState.size === 0,
+        }),
+      { log },
+    )
   } finally {
     if (payload) {
       await payload.destroy()

@@ -5,6 +5,20 @@ import fs from 'fs'
 type SeedPhase = 'bootstrap' | 'backfill'
 type SeedOptions = {
   isFreshDatabase?: boolean
+  allowGalleryUpload?: boolean
+}
+
+type GallerySeedImage = {
+  file: string
+  caption_ko: string
+  caption_en: string
+}
+
+type GallerySeedOptions = {
+  phase?: SeedPhase
+  force?: boolean
+  imageDir?: string
+  galleryImages?: GallerySeedImage[]
 }
 
 const servicesData = [
@@ -279,6 +293,23 @@ const aboutDefaultData = {
   ],
 }
 
+const gallerySeedImages: GallerySeedImage[] = [
+  { file: 'studio-01.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
+  { file: 'studio-02.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
+  { file: 'studio-04.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+  { file: 'studio-05.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+  { file: 'studio-06.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+  { file: 'studio-08.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+  { file: 'studio-09.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+  { file: 'studio-11.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
+  { file: 'gear-01.jpg', caption_ko: '장비', caption_en: 'Gear' },
+  { file: 'gear-02.jpg', caption_ko: '장비', caption_en: 'Gear' },
+  { file: 'session-01.jpg', caption_ko: '세션', caption_en: 'Session' },
+  { file: 'session-02.jpg', caption_ko: '세션', caption_en: 'Session' },
+]
+
+export const starterGallerySeedCount = gallerySeedImages.length
+
 function hasNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
@@ -391,18 +422,26 @@ function isSafeMissingGlobalError(error: unknown): boolean {
   )
 }
 
+function shouldAllowGalleryUpload(options: SeedOptions): boolean {
+  if (options.allowGalleryUpload === true) {
+    return true
+  }
+
+  return process.env.SEED_GALLERY_UPLOADS === 'true'
+}
+
 export async function seed(payload: Payload, options: SeedOptions = {}): Promise<void> {
   const isFreshDatabase = options.isFreshDatabase === true
   const phase: SeedPhase = isFreshDatabase ? 'bootstrap' : 'backfill'
+  const allowGalleryUpload = shouldAllowGalleryUpload(options)
 
   payload.logger.info(`Checking if explicit ${phase} seed data is needed...`)
 
   let needsWork = false
 
-  const [existingServices, existingPortfolio, existingGallery] = await Promise.all([
+  const [existingServices, existingPortfolio] = await Promise.all([
     payload.find({ collection: 'services', limit: 1 }),
     payload.find({ collection: 'portfolio', limit: 1 }),
-    payload.find({ collection: 'gallery', limit: 1 }),
   ])
 
   if (existingServices.totalDocs === 0) {
@@ -437,10 +476,16 @@ export async function seed(payload: Payload, options: SeedOptions = {}): Promise
     needsWork = true
   }
 
-  if (existingGallery.totalDocs === 0) {
-    payload.logger.info(`Gallery is empty. Seeding during explicit ${phase}...`)
-    await seedGallery(payload, phase)
-    needsWork = true
+  if (allowGalleryUpload) {
+    const gallerySeeded = await seedGalleryUploads(payload, { phase })
+
+    if (gallerySeeded) {
+      needsWork = true
+    }
+  } else {
+    payload.logger.info(
+      `Gallery media upload seed is explicit opt-in. Skipping during explicit ${phase}. Set SEED_GALLERY_UPLOADS=true or call seedGalleryUploads(...) explicitly when needed.`,
+    )
   }
 
   if (!needsWork) {
@@ -914,7 +959,15 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
   })
 }
 
-async function seedGallery(payload: Payload, phase: SeedPhase): Promise<void> {
+export async function seedGalleryUploads(
+  payload: Payload,
+  {
+    force = false,
+    galleryImages = gallerySeedImages,
+    imageDir = path.resolve(process.cwd(), 'public/images/instagram'),
+    phase = 'backfill',
+  }: GallerySeedOptions = {},
+): Promise<boolean> {
   const hasCloudinaryConfig = Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&
       process.env.CLOUDINARY_API_KEY &&
@@ -923,30 +976,24 @@ async function seedGallery(payload: Payload, phase: SeedPhase): Promise<void> {
 
   if (!hasCloudinaryConfig) {
     payload.logger.info(`Skipping gallery seed upload during ${phase} because Cloudinary credentials are missing.`)
-    return
+    return false
   }
 
-  payload.logger.info(`Seeding gallery images during ${phase}...`)
-  const galleryImages = [
-    { file: 'studio-01.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
-    { file: 'studio-02.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
-    { file: 'studio-04.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
-    { file: 'studio-05.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
-    { file: 'studio-06.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
-    { file: 'studio-08.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
-    { file: 'studio-09.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
-    { file: 'studio-11.jpg', caption_ko: '스튜디오', caption_en: 'Studio' },
-    { file: 'gear-01.jpg', caption_ko: '장비', caption_en: 'Gear' },
-    { file: 'gear-02.jpg', caption_ko: '장비', caption_en: 'Gear' },
-    { file: 'session-01.jpg', caption_ko: '세션', caption_en: 'Session' },
-    { file: 'session-02.jpg', caption_ko: '세션', caption_en: 'Session' },
-  ]
+  if (!force) {
+    const existingGallery = await payload.find({ collection: 'gallery', limit: 1 })
 
-  const imgDir = path.resolve(process.cwd(), 'public/images/instagram')
+    if (existingGallery.totalDocs > 0) {
+      payload.logger.info(`Gallery already has ${existingGallery.totalDocs} items. Skipping explicit gallery upload seed.`)
+      return false
+    }
+  }
+
+  payload.logger.info(`Running explicit gallery upload seed during ${phase}...`)
+  let createdGalleryDocs = 0
 
   for (let i = 0; i < galleryImages.length; i++) {
     const img = galleryImages[i]
-    const filePath = path.join(imgDir, img.file)
+    const filePath = path.join(imageDir, img.file)
 
     if (!fs.existsSync(filePath)) {
       payload.logger.info(`Skipping ${img.file} — file not found`)
@@ -978,9 +1025,17 @@ async function seedGallery(payload: Payload, phase: SeedPhase): Promise<void> {
           sortOrder: i + 1,
         },
       })
+      createdGalleryDocs += 1
     } catch (err) {
       payload.logger.error(`Failed to upload ${img.file}: ${err}`)
     }
   }
-  payload.logger.info('Gallery images seeded.')
+
+  if (createdGalleryDocs === 0) {
+    payload.logger.info(`Explicit gallery upload seed finished without creating gallery items during ${phase}.`)
+    return false
+  }
+
+  payload.logger.info(`Explicit gallery upload seed created ${createdGalleryDocs} gallery items during ${phase}.`)
+  return true
 }

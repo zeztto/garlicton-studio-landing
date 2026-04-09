@@ -24,6 +24,7 @@
 - `.env.production.example`
 - `scripts/prepare-sqlite.mjs`
 - `scripts/bootstrap-sqlite.mjs`
+- `scripts/seed-gallery.mjs`
 - `scripts/export-turso-dump.sh`
 - `scripts/import-sqlite-dump.sh`
 - `scripts/copy-libsql-to-sqlite.mjs`
@@ -43,8 +44,14 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 
 4. Open `http://localhost:3000`.
 5. Confirm the landing page, Payload admin, contact form, and media URLs work.
+6. If you want the bundled starter gallery images uploaded to Cloudinary, run:
+
+```bash
+npm run seed:gallery
+```
 
 Before `next start`, the runtime now executes `scripts/prepare-sqlite.mjs`. For file-based SQLite it explicitly opens Payload once, applies schema sync, and runs the conditional seed/backfill path. A missing DB file is created on first boot, while existing DB files still receive safe schema/backfill preparation.
+Cloudinary-backed starter gallery uploads are intentionally suppressed during this prepare step so production boot is not coupled to remote media uploads.
 
 ## Phase 2. Source DB backup and SQLite conversion
 
@@ -93,6 +100,7 @@ mkdir -p data
 ```
 
 5. If migrating existing production data, place the imported SQLite file at `data/db.sqlite`.
+6. If you want the bundled starter gallery images uploaded after deploy, plan to run `npm run seed:gallery` once with valid Cloudinary credentials.
 
 ## Phase 4. Vultr deployment
 
@@ -124,8 +132,9 @@ This publishes:
 - `PAYLOAD_SECRET` must stay stable across redeploys.
 - `PREVIEW_SECRET` must stay stable across redeploys and must not be shared in URLs outside trusted preview links.
 - Caddy automatically provisions HTTPS for `APP_DOMAIN` after DNS points to the server.
-- `scripts/prepare-sqlite.mjs` runs before every production start when `DATABASE_URI` is file-based. It relies on the explicit seed/backfill guardrails, so existing SQLite files do not get blindly reset.
+- `scripts/prepare-sqlite.mjs` runs before every production start when `DATABASE_URI` is file-based. It relies on the explicit seed/backfill guardrails, so existing SQLite files do not get blindly reset, and it intentionally suppresses Cloudinary-backed gallery uploads.
 - `scripts/bootstrap-sqlite.mjs` is retained as a compatibility shim and delegates to `scripts/prepare-sqlite.mjs`.
+- `scripts/seed-gallery.mjs` is the explicit opt-in entrypoint for uploading the bundled starter gallery images to Cloudinary. Run it manually only when that starter media import is desired.
 - `scripts/export-turso-dump.sh` infers the Turso DB name from `.env.local` unless `TURSO_DB_NAME` is set.
 - `scripts/import-sqlite-dump.sh` backs up an existing target DB before replacing it.
 - `scripts/copy-libsql-to-sqlite.mjs` backs up an existing target DB before replacing it.
