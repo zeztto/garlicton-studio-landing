@@ -1,4 +1,12 @@
-import type { GlobalConfig } from 'payload'
+import type { GlobalBeforeValidateHook, GlobalConfig } from 'payload'
+import {
+  clampNumber,
+  normalizeEmailDisplay,
+  normalizeExternalUrl,
+  normalizeOptionalHref,
+  normalizeSectionOrder,
+} from '../../lib/payload-admin.ts'
+import { buildHomePreviewURL } from '../../lib/preview.ts'
 
 const localizedTextField = (
   name: string,
@@ -45,6 +53,56 @@ export const SiteSettings: GlobalConfig = {
   label: '사이트 설정',
   admin: {
     group: '⚙️ 설정',
+    description: '홈페이지 구조, 연락처, 메타데이터를 한 곳에서 관리합니다. 저장 후 preview/live preview로 실제 노출 상태를 바로 확인할 수 있습니다.',
+    hideAPIURL: true,
+    preview: (_, { locale }) => buildHomePreviewURL({ locale }),
+    livePreview: {
+      url: ({ locale }) => buildHomePreviewURL({ locale: locale.code }),
+    },
+  },
+  hooks: {
+    beforeValidate: [
+      (({ data }) => {
+        const nextData = { ...data }
+
+        if (nextData.homepageLayout && typeof nextData.homepageLayout === 'object') {
+          const homepageLayout = { ...nextData.homepageLayout } as Record<string, unknown>
+          homepageLayout.sectionOrder = normalizeSectionOrder(
+            Array.isArray(homepageLayout.sectionOrder)
+              ? (homepageLayout.sectionOrder as Array<{ section?: null | string } | null>)
+              : undefined,
+          )
+          nextData.homepageLayout = homepageLayout
+        }
+
+        if (nextData.hero && typeof nextData.hero === 'object') {
+          const hero = { ...nextData.hero } as Record<string, unknown>
+          hero.ctaHref = normalizeOptionalHref(hero.ctaHref, '#contact')
+          nextData.hero = hero
+        }
+
+        if (nextData.contact && typeof nextData.contact === 'object') {
+          const contact = { ...nextData.contact } as Record<string, unknown>
+          contact.instagramUrl = normalizeExternalUrl(contact.instagramUrl)
+          contact.kakaoChannelUrl = normalizeExternalUrl(contact.kakaoChannelUrl)
+          contact.emailDisplay = normalizeEmailDisplay(contact.emailDisplay, contact.email)
+          contact.mapLatitude = clampNumber(contact.mapLatitude, 37.752179, -90, 90)
+          contact.mapLongitude = clampNumber(contact.mapLongitude, 126.48305, -180, 180)
+          nextData.contact = contact
+        }
+
+        if (nextData.pagesIndex && typeof nextData.pagesIndex === 'object') {
+          const pagesIndex = { ...nextData.pagesIndex } as Record<string, unknown>
+          pagesIndex.href = normalizeOptionalHref(pagesIndex.href, '/pages')
+          nextData.pagesIndex = pagesIndex
+        }
+
+        return nextData
+      }) as GlobalBeforeValidateHook,
+    ],
+  },
+  lockDocuments: {
+    duration: 300,
   },
   fields: [
     // 헤더

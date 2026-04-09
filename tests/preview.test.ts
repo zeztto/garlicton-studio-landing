@@ -1,9 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  buildHomePath,
   buildPagePath,
   getPreviewAccessError,
   isValidPreviewSecret,
+  normalizeHomePreviewAnchor,
   resolvePreviewRedirectPath,
 } from '../src/lib/preview'
 
@@ -73,4 +75,14 @@ test('resolvePreviewRedirectPath allows only safe relative paths and falls back 
     }),
     '/ko/pages',
   )
+})
+
+test('home preview helpers normalize allowed section anchors only', () => {
+  assert.equal(normalizeHomePreviewAnchor('about'), 'about')
+  assert.equal(normalizeHomePreviewAnchor('#studio'), 'studio')
+  assert.equal(normalizeHomePreviewAnchor('https://evil.example'), null)
+  assert.equal(normalizeHomePreviewAnchor('unknown'), null)
+
+  assert.equal(buildHomePath({ locale: 'en' }), '/en')
+  assert.equal(buildHomePath({ locale: 'ko', anchor: 'portfolio' }), '/ko#portfolio')
 })

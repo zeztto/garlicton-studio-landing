@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { buildHomePreviewURL } from '../../lib/preview.ts'
 
 export const Gallery: CollectionConfig = {
   slug: 'gallery',
@@ -7,6 +8,15 @@ export const Gallery: CollectionConfig = {
     group: '📄 콘텐츠',
     description: '스튜디오 사진을 관리합니다.',
     defaultColumns: ['image', 'caption_ko', 'sortOrder'],
+    hideAPIURL: true,
+    preview: (_, { locale }) => buildHomePreviewURL({ anchor: 'studio', locale }),
+    livePreview: {
+      url: ({ locale }) => buildHomePreviewURL({ anchor: 'studio', locale: locale.code }),
+    },
+  },
+  defaultSort: 'sortOrder',
+  lockDocuments: {
+    duration: 300,
   },
   fields: [
     { name: 'image', type: 'upload', relationTo: 'media', required: true, label: '이미지' },

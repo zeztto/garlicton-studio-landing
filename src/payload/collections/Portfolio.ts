@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { buildHomePreviewURL } from '../../lib/preview.ts'
 
 export const Portfolio: CollectionConfig = {
   slug: 'portfolio',
@@ -8,6 +9,15 @@ export const Portfolio: CollectionConfig = {
     description: '포트폴리오 작품과 YouTube 영상을 관리합니다.',
     useAsTitle: 'title_ko',
     defaultColumns: ['title_ko', 'artist', 'mediaType', 'sortOrder'],
+    hideAPIURL: true,
+    preview: (_, { locale }) => buildHomePreviewURL({ anchor: 'portfolio', locale }),
+    livePreview: {
+      url: ({ locale }) => buildHomePreviewURL({ anchor: 'portfolio', locale: locale.code }),
+    },
+  },
+  defaultSort: 'sortOrder',
+  lockDocuments: {
+    duration: 300,
   },
   fields: [
     { name: 'title_ko', type: 'text', required: true, label: '제목 (한국어)' },

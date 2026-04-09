@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { buildHomePreviewURL } from '../../lib/preview.ts'
 
 export const Services: CollectionConfig = {
   slug: 'services',
@@ -8,6 +9,15 @@ export const Services: CollectionConfig = {
     description: '레코딩, 믹싱, 마스터링, 프로듀싱 서비스를 관리합니다.',
     useAsTitle: 'title_ko',
     defaultColumns: ['title_ko', 'sortOrder'],
+    hideAPIURL: true,
+    preview: (_, { locale }) => buildHomePreviewURL({ anchor: 'services', locale }),
+    livePreview: {
+      url: ({ locale }) => buildHomePreviewURL({ anchor: 'services', locale: locale.code }),
+    },
+  },
+  defaultSort: 'sortOrder',
+  lockDocuments: {
+    duration: 300,
   },
   fields: [
     { name: 'title_ko', type: 'text', required: true, label: '제목 (한국어)' },

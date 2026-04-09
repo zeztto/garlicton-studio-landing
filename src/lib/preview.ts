@@ -1,9 +1,11 @@
 import { timingSafeEqual } from 'node:crypto'
 import { normalizePageSlug } from './pages-workflow.ts'
+import { DEFAULT_HOME_SECTION_ORDER, type HomeSectionKey } from './site-settings.ts'
 import { getPreviewSecret, getSiteUrl } from './runtime-config.ts'
 
 const DEFAULT_PAGE_PREVIEW_LOCALE = 'ko'
 const PAGE_PREVIEW_ROUTE = '/api/preview'
+const HOME_SECTION_SET = new Set<HomeSectionKey>(DEFAULT_HOME_SECTION_ORDER)
 
 export type PagePreviewLocale = 'ko' | 'en'
 
@@ -61,6 +63,39 @@ export const buildPagePath = ({
   return `/${safeLocale}/pages/${safeSlug}`
 }
 
+export const normalizeHomePreviewAnchor = (
+  anchor?: null | string,
+): HomeSectionKey | null => {
+  if (!anchor) {
+    return null
+  }
+
+  const normalized = anchor.replace(/^#/, '').trim()
+
+  if (!normalized || !HOME_SECTION_SET.has(normalized as HomeSectionKey)) {
+    return null
+  }
+
+  return normalized as HomeSectionKey
+}
+
+export const buildHomePath = ({
+  anchor,
+  locale,
+}: {
+  anchor?: null | string
+  locale?: null | string
+}): string => {
+  const safeLocale = normalizePreviewLocale(locale)
+  const safeAnchor = normalizeHomePreviewAnchor(anchor)
+
+  if (!safeAnchor) {
+    return `/${safeLocale}`
+  }
+
+  return `/${safeLocale}#${safeAnchor}`
+}
+
 export const resolvePreviewRedirectPath = ({
   locale,
   path,
@@ -103,6 +138,34 @@ export const buildPagePreviewURL = ({
   previewURL.searchParams.set('path', buildPagePath({ locale, slug }))
   previewURL.searchParams.set('secret', secret)
   previewURL.searchParams.set('slug', slug)
+
+  return previewURL.toString()
+}
+
+export const buildHomePreviewURL = ({
+  anchor,
+  locale,
+}: {
+  anchor?: null | string
+  locale?: null | string
+} = {}): null | string => {
+  const secret = getPreviewSecret()
+
+  if (!secret) {
+    return null
+  }
+
+  const previewURL = new URL(PAGE_PREVIEW_ROUTE, getSiteUrl())
+
+  previewURL.searchParams.set('locale', normalizePreviewLocale(locale))
+  previewURL.searchParams.set('path', buildHomePath({ anchor, locale }))
+  previewURL.searchParams.set('secret', secret)
+
+  const safeAnchor = normalizeHomePreviewAnchor(anchor)
+
+  if (safeAnchor) {
+    previewURL.searchParams.set('anchor', safeAnchor)
+  }
 
   return previewURL.toString()
 }
