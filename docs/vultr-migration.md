@@ -22,6 +22,7 @@
 - `docker-compose.vultr.yml`
 - `infra/Caddyfile`
 - `.env.production.example`
+- `scripts/prepare-sqlite.mjs`
 - `scripts/bootstrap-sqlite.mjs`
 - `scripts/export-turso-dump.sh`
 - `scripts/import-sqlite-dump.sh`
@@ -43,7 +44,7 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 4. Open `http://localhost:3000`.
 5. Confirm the landing page, Payload admin, contact form, and media URLs work.
 
-If there is no imported DB yet, the startup bootstrap will create `data/db.sqlite`, push the SQLite schema, and seed initial content on first boot.
+Before `next start`, the runtime now executes `scripts/prepare-sqlite.mjs`. For file-based SQLite it explicitly opens Payload once, applies schema sync, and runs the conditional seed/backfill path. A missing DB file is created on first boot, while existing DB files still receive safe schema/backfill preparation.
 
 ## Phase 2. Source DB backup and SQLite conversion
 
@@ -123,7 +124,8 @@ This publishes:
 - `PAYLOAD_SECRET` must stay stable across redeploys.
 - `PREVIEW_SECRET` must stay stable across redeploys and must not be shared in URLs outside trusted preview links.
 - Caddy automatically provisions HTTPS for `APP_DOMAIN` after DNS points to the server.
-- `scripts/bootstrap-sqlite.mjs` only bootstraps when the SQLite file is missing or empty, so normal restarts do not re-seed the database.
+- `scripts/prepare-sqlite.mjs` runs before every production start when `DATABASE_URI` is file-based. It relies on the explicit seed/backfill guardrails, so existing SQLite files do not get blindly reset.
+- `scripts/bootstrap-sqlite.mjs` is retained as a compatibility shim and delegates to `scripts/prepare-sqlite.mjs`.
 - `scripts/export-turso-dump.sh` infers the Turso DB name from `.env.local` unless `TURSO_DB_NAME` is set.
 - `scripts/import-sqlite-dump.sh` backs up an existing target DB before replacing it.
 - `scripts/copy-libsql-to-sqlite.mjs` backs up an existing target DB before replacing it.
@@ -134,4 +136,4 @@ This publishes:
 - The app currently has a Vercel-oriented `deploy.sh`; it is not part of the new Docker/Vultr path.
 - Cloudinary, SMTP, Turnstile, and Kakao integrations all require valid production env values before cutover.
 - The preview/draft workflow requires `PREVIEW_SECRET`; production startup now fails fast if it is missing.
-- Formal Payload production migrations are not wired yet; current bootstrap is optimized for first-time SQLite initialization.
+- Formal Payload production migrations are not wired yet; the current runtime path depends on Payload SQLite `push` plus explicit conditional seed/backfill during `scripts/prepare-sqlite.mjs`.

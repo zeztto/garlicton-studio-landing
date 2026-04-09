@@ -15,7 +15,6 @@ import { Inquiries } from './src/payload/collections/Inquiries.ts'
 import { Pages } from './src/payload/collections/Pages.ts'
 import { SiteSettings } from './src/payload/globals/SiteSettings.ts'
 import { About } from './src/payload/globals/About.ts'
-import { seed } from './src/payload/seed.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -56,9 +55,6 @@ export default buildConfig({
     meta: {
       titleSuffix: '- 갈릭톤 스튜디오',
     },
-  },
-  onInit: async (payload) => {
-    await seed(payload)
   },
   collections: [
     Services,    // 서비스 (섹션 2)

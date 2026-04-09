@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
-import { normalizePageSlug } from './pages-workflow'
-import { SITE_URL } from './site'
+import { normalizePageSlug } from './pages-workflow.ts'
+import { SITE_URL } from './site.ts'
 
 const DEFAULT_PAGE_PREVIEW_LOCALE = 'ko'
 const PAGE_PREVIEW_ROUTE = '/api/preview'

@@ -1,6 +1,6 @@
 import type { CollectionBeforeChangeHook, CollectionConfig, GeneratePreviewURL } from 'payload'
-import { buildPagePreviewURL } from '../../lib/preview'
-import { normalizePageSlug } from '../../lib/pages-workflow'
+import { buildPagePreviewURL } from '../../lib/preview.ts'
+import { normalizePageSlug } from '../../lib/pages-workflow.ts'
 
 const syncPublishedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   const nextData = { ...data }

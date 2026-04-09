@@ -2,6 +2,11 @@ import type { Payload } from 'payload'
 import path from 'path'
 import fs from 'fs'
 
+type SeedPhase = 'bootstrap' | 'backfill'
+type SeedOptions = {
+  isFreshDatabase?: boolean
+}
+
 const servicesData = [
   {
     title_ko: '레코딩',
@@ -211,151 +216,321 @@ const portfolioData = [
   },
 ]
 
-export async function seed(payload: Payload): Promise<void> {
-  payload.logger.info('Checking if seed data is needed...')
+const aboutDefaultData = {
+  name_ko: '이주희',
+  name_en: 'Lee Ju Hee',
+  title_ko: 'Founder / Producer / Mixer / Mastering Engineer',
+  title_en: 'Founder / Producer / Mixer / Mastering Engineer',
+  career: [
+    {
+      period: '2016',
+      description_ko:
+        '램넌츠오브더폴른 1집 《Shadow Walk》 마스터링 — 제14회 한국대중음악상(2017) 최우수 메탈&하드코어 음반 수상',
+      description_en:
+        'Remnants of the Fallen 1st Album "Shadow Walk" Mastering — 14th Korean Music Awards (2017) Best Metal & Hardcore Album Winner',
+    },
+    {
+      period: '2017',
+      description_ko:
+        '기타리스트 김재하 1집 《Into Ashes》 믹싱/마스터링 — 제15회 한국대중음악상 최우수 메탈&하드코어 음반 노미네이트',
+      description_en:
+        'Guitarist Kim Jaeha 1st Album "Into Ashes" Mixing/Mastering — 15th KMA Best Metal & Hardcore Album Nominee',
+    },
+    {
+      period: '2019',
+      description_ko:
+        '《블랙홀 트리뷰트 - RE-ENCOUNTER THE MIRACLE》 믹싱/마스터링 — 제17회 한국대중음악상(2020) 노미네이트',
+      description_en:
+        '"Black Hole Tribute - RE-ENCOUNTER THE MIRACLE" Mixing/Mastering — 17th KMA (2020) Nominee',
+    },
+    {
+      period: '2019',
+      description_ko:
+        '메써드 5집 《Definition of Method》 믹싱 — 제17회 한국대중음악상(2020) 최우수 메탈&하드코어 음반 수상',
+      description_en:
+        'Method 5th Album "Definition of Method" Mixing — 17th KMA (2020) Best Metal & Hardcore Album Winner',
+    },
+    {
+      period: '2020',
+      description_ko:
+        '램넌츠 오브 더 폴른 2집 《All the Wounded and Broken》 믹싱/마스터링 — 제18회 한국대중음악상(2021) 최우수 메탈&하드코어 음반 수상',
+      description_en:
+        'Remnants of the Fallen 2nd Album "All the Wounded and Broken" Mixing/Mastering — 18th KMA (2021) Best Metal & Hardcore Album Winner',
+    },
+    {
+      period: '2021',
+      description_ko: '스핏온마이툼 1집 《Necrosis》 믹싱/마스터링 — 제19회 한국대중음악상 노미네이트',
+      description_en: 'Spit On My Tomb 1st Album "Necrosis" Mixing/Mastering — 19th KMA Nominee',
+    },
+    {
+      period: '2023',
+      description_ko:
+        '도굴 EP 《If These Bodies Could Talk》 믹싱/마스터링 — 제21회 한국대중음악상 노미네이트',
+      description_en:
+        'Doguul EP "If These Bodies Could Talk" Mixing/Mastering — 21st KMA Nominee',
+    },
+    {
+      period: '2025',
+      description_ko:
+        '로스 오브 인펙션 EP 《罰錢 (Beoljeon)》 믹싱/마스터링 — 제23회 한국대중음악상 노미네이트',
+      description_en:
+        'Loss of Infection EP "罰錢 (Beoljeon)" Mixing/Mastering — 23rd KMA Nominee',
+    },
+  ],
+}
 
-  // Check if services already exist
-  const existingServices = await payload.find({
-    collection: 'services',
-    limit: 1,
-  })
+function hasNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
 
-  if (existingServices.totalDocs > 0) {
-    let needsWork = false
+function isRecord(value: unknown): value is Record<string, any> {
+  return typeof value === 'object' && value !== null
+}
 
-    // Check if gallery needs seeding
-    const existingGallery = await payload.find({ collection: 'gallery', limit: 1 })
-    if (existingGallery.totalDocs === 0) {
-      payload.logger.info('Gallery is empty. Seeding gallery...')
-      await seedGallery(payload)
-      needsWork = true
+function needsAboutBackfill(about: unknown): boolean {
+  if (!isRecord(about)) {
+    return true
+  }
+
+  return (
+    !hasNonEmptyString(about.name_ko) ||
+    !hasNonEmptyString(about.name_en) ||
+    !hasNonEmptyString(about.title_ko) ||
+    !hasNonEmptyString(about.title_en) ||
+    !Array.isArray(about.career) ||
+    about.career.length === 0
+  )
+}
+
+function needsSiteSettingsBackfill(settings: unknown): boolean {
+  if (!isRecord(settings)) {
+    return true
+  }
+
+  return (
+    !hasNonEmptyString(settings.header?.siteName) ||
+    !Array.isArray(settings.homepageLayout?.sectionOrder) ||
+    settings.homepageLayout.sectionOrder.length === 0 ||
+    !hasNonEmptyString(settings.contactForm?.nameLabel_ko) ||
+    typeof settings.contact?.mapLatitude !== 'number' ||
+    typeof settings.footer?.showInstagram !== 'boolean' ||
+    !hasNonEmptyString(settings.contactSection?.phoneLabel_ko) ||
+    !hasNonEmptyString(settings.footer?.contactTitle_ko) ||
+    !hasNonEmptyString(settings.pagesIndex?.navLabel_ko)
+  )
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return String(error)
+}
+
+function mergeSeedValue(defaultValue: any, existingValue: any): any {
+  if (typeof defaultValue === 'string') {
+    return hasNonEmptyString(existingValue) ? existingValue : defaultValue
+  }
+
+  if (typeof defaultValue === 'number') {
+    return typeof existingValue === 'number' ? existingValue : defaultValue
+  }
+
+  if (typeof defaultValue === 'boolean') {
+    return typeof existingValue === 'boolean' ? existingValue : defaultValue
+  }
+
+  if (Array.isArray(defaultValue)) {
+    return Array.isArray(existingValue) && existingValue.length > 0 ? existingValue : defaultValue
+  }
+
+  if (isRecord(defaultValue)) {
+    const result: Record<string, any> = {}
+    const existingRecord = isRecord(existingValue) ? existingValue : {}
+
+    for (const key of Object.keys(defaultValue)) {
+      result[key] = mergeSeedValue(defaultValue[key], existingRecord[key])
     }
 
-    // Check if site-settings needs re-seeding (schema changed)
-    try {
-      const settings = await payload.findGlobal({ slug: 'site-settings' })
-      if (
-        !settings.header?.siteName ||
-        !settings.homepageLayout?.sectionOrder?.length ||
-        !settings.contactForm?.nameLabel_ko ||
-        typeof settings.contact?.mapLatitude !== 'number' ||
-        typeof settings.footer?.showInstagram !== 'boolean' ||
-        !settings.contactSection?.phoneLabel_ko ||
-        !settings.footer?.contactTitle_ko ||
-        !settings.pagesIndex?.navLabel_ko
-      ) {
-        payload.logger.info('SiteSettings needs update. Backfilling missing fields...')
-        await backfillSiteSettings(payload, settings as Record<string, any>)
-        needsWork = true
+    for (const key of Object.keys(existingRecord)) {
+      if (!(key in result)) {
+        result[key] = existingRecord[key]
       }
-    } catch {
-      payload.logger.info('SiteSettings error. Re-seeding...')
-      await seedSiteSettings(payload)
-      needsWork = true
     }
 
-    if (!needsWork) {
-      payload.logger.info('Seed data already exists. Skipping.')
+    return result
+  }
+
+  if (typeof defaultValue === 'string') {
+    return hasNonEmptyString(existingValue) ? existingValue : defaultValue
+  }
+
+  if (typeof defaultValue === 'number') {
+    return typeof existingValue === 'number' ? existingValue : defaultValue
+  }
+
+  if (typeof defaultValue === 'boolean') {
+    return typeof existingValue === 'boolean' ? existingValue : defaultValue
+  }
+
+  return existingValue ?? defaultValue
+}
+
+function isSafeMissingGlobalError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase()
+
+  if (!message) {
+    return false
+  }
+
+  return (
+    (message.includes('not found') || message.includes('no rows') || message.includes('missing')) &&
+    !message.includes('sqlite') &&
+    !message.includes('failed query')
+  )
+}
+
+export async function seed(payload: Payload, options: SeedOptions = {}): Promise<void> {
+  const isFreshDatabase = options.isFreshDatabase === true
+  const phase: SeedPhase = isFreshDatabase ? 'bootstrap' : 'backfill'
+
+  payload.logger.info(`Checking if explicit ${phase} seed data is needed...`)
+
+  let needsWork = false
+
+  const [existingServices, existingPortfolio, existingGallery] = await Promise.all([
+    payload.find({ collection: 'services', limit: 1 }),
+    payload.find({ collection: 'portfolio', limit: 1 }),
+    payload.find({ collection: 'gallery', limit: 1 }),
+  ])
+
+  if (existingServices.totalDocs === 0) {
+    payload.logger.info(`Services are empty. Seeding during explicit ${phase}...`)
+    for (const service of servicesData) {
+      await payload.create({
+        collection: 'services',
+        data: service,
+      })
     }
+    payload.logger.info(`Created ${servicesData.length} services.`)
+    needsWork = true
+  }
+
+  if (existingPortfolio.totalDocs === 0) {
+    payload.logger.info(`Portfolio is empty. Seeding during explicit ${phase}...`)
+    for (const item of portfolioData) {
+      await payload.create({
+        collection: 'portfolio',
+        data: item,
+      })
+    }
+    payload.logger.info(`Created ${portfolioData.length} portfolio items.`)
+    needsWork = true
+  }
+
+  if (await ensureAboutGlobal(payload, { isFreshDatabase })) {
+    needsWork = true
+  }
+
+  if (await ensureSiteSettingsGlobal(payload, { isFreshDatabase })) {
+    needsWork = true
+  }
+
+  if (existingGallery.totalDocs === 0) {
+    payload.logger.info(`Gallery is empty. Seeding during explicit ${phase}...`)
+    await seedGallery(payload, phase)
+    needsWork = true
+  }
+
+  if (!needsWork) {
+    payload.logger.info('Seed data already exists. Skipping.')
     return
   }
 
-  payload.logger.info('Seeding database...')
+  payload.logger.info(`Explicit ${phase} seed complete.`)
+}
 
-  // Seed Services
-  payload.logger.info('Seeding services...')
-  for (const service of servicesData) {
-    await payload.create({
-      collection: 'services',
-      data: service,
-    })
+async function ensureAboutGlobal(
+  payload: Payload,
+  { isFreshDatabase }: SeedOptions,
+): Promise<boolean> {
+  if (isFreshDatabase) {
+    await seedAboutGlobal(payload)
+    return true
   }
-  payload.logger.info(`Created ${servicesData.length} services.`)
 
-  // Seed Portfolio
-  payload.logger.info('Seeding portfolio...')
-  for (const item of portfolioData) {
-    await payload.create({
-      collection: 'portfolio',
-      data: item,
-    })
+  try {
+    const about = await payload.findGlobal({ slug: 'about' })
+
+    if (!needsAboutBackfill(about)) {
+      return false
+    }
+
+    payload.logger.info('About global needs update. Running explicit backfill...')
+    await backfillAboutGlobal(payload, about as Record<string, any>)
+    return true
+  } catch (error) {
+    if (isSafeMissingGlobalError(error)) {
+      payload.logger.info('About global is missing. Re-seeding during explicit backfill...')
+      await seedAboutGlobal(payload)
+      return true
+    }
+
+    payload.logger.warn(
+      `Skipping about repair because the global could not be read safely: ${getErrorMessage(error)}`,
+    )
+    return false
   }
-  payload.logger.info(`Created ${portfolioData.length} portfolio items.`)
+}
 
-  // Seed About global
+async function seedAboutGlobal(payload: Payload): Promise<void> {
   payload.logger.info('Seeding about global...')
   await payload.updateGlobal({
     slug: 'about',
-    data: {
-      name_ko: '이주희',
-      name_en: 'Lee Ju Hee',
-      title_ko: 'Founder / Producer / Mixer / Mastering Engineer',
-      title_en: 'Founder / Producer / Mixer / Mastering Engineer',
-      career: [
-        {
-          period: '2016',
-          description_ko:
-            '램넌츠오브더폴른 1집 《Shadow Walk》 마스터링 — 제14회 한국대중음악상(2017) 최우수 메탈&하드코어 음반 수상',
-          description_en:
-            'Remnants of the Fallen 1st Album "Shadow Walk" Mastering — 14th Korean Music Awards (2017) Best Metal & Hardcore Album Winner',
-        },
-        {
-          period: '2017',
-          description_ko:
-            '기타리스트 김재하 1집 《Into Ashes》 믹싱/마스터링 — 제15회 한국대중음악상 최우수 메탈&하드코어 음반 노미네이트',
-          description_en:
-            'Guitarist Kim Jaeha 1st Album "Into Ashes" Mixing/Mastering — 15th KMA Best Metal & Hardcore Album Nominee',
-        },
-        {
-          period: '2019',
-          description_ko:
-            '《블랙홀 트리뷰트 - RE-ENCOUNTER THE MIRACLE》 믹싱/마스터링 — 제17회 한국대중음악상(2020) 노미네이트',
-          description_en:
-            '"Black Hole Tribute - RE-ENCOUNTER THE MIRACLE" Mixing/Mastering — 17th KMA (2020) Nominee',
-        },
-        {
-          period: '2019',
-          description_ko:
-            '메써드 5집 《Definition of Method》 믹싱 — 제17회 한국대중음악상(2020) 최우수 메탈&하드코어 음반 수상',
-          description_en:
-            'Method 5th Album "Definition of Method" Mixing — 17th KMA (2020) Best Metal & Hardcore Album Winner',
-        },
-        {
-          period: '2020',
-          description_ko:
-            '램넌츠 오브 더 폴른 2집 《All the Wounded and Broken》 믹싱/마스터링 — 제18회 한국대중음악상(2021) 최우수 메탈&하드코어 음반 수상',
-          description_en:
-            'Remnants of the Fallen 2nd Album "All the Wounded and Broken" Mixing/Mastering — 18th KMA (2021) Best Metal & Hardcore Album Winner',
-        },
-        {
-          period: '2021',
-          description_ko: '스핏온마이툼 1집 《Necrosis》 믹싱/마스터링 — 제19회 한국대중음악상 노미네이트',
-          description_en: 'Spit On My Tomb 1st Album "Necrosis" Mixing/Mastering — 19th KMA Nominee',
-        },
-        {
-          period: '2023',
-          description_ko:
-            '도굴 EP 《If These Bodies Could Talk》 믹싱/마스터링 — 제21회 한국대중음악상 노미네이트',
-          description_en:
-            'Doguul EP "If These Bodies Could Talk" Mixing/Mastering — 21st KMA Nominee',
-        },
-        {
-          period: '2025',
-          description_ko:
-            '로스 오브 인펙션 EP 《罰錢 (Beoljeon)》 믹싱/마스터링 — 제23회 한국대중음악상 노미네이트',
-          description_en:
-            'Loss of Infection EP "罰錢 (Beoljeon)" Mixing/Mastering — 23rd KMA Nominee',
-        },
-      ],
-    },
+    data: aboutDefaultData,
   })
   payload.logger.info('About global seeded.')
+}
 
-  await seedSiteSettings(payload)
+async function backfillAboutGlobal(payload: Payload, existing: Record<string, any>): Promise<void> {
+  await payload.updateGlobal({
+    slug: 'about',
+    data: mergeSeedValue(aboutDefaultData, existing),
+  })
+}
 
-  await seedGallery(payload)
+async function ensureSiteSettingsGlobal(
+  payload: Payload,
+  { isFreshDatabase }: SeedOptions,
+): Promise<boolean> {
+  if (isFreshDatabase) {
+    await seedSiteSettings(payload)
+    return true
+  }
 
-  payload.logger.info('Seeding complete.')
+  try {
+    const settings = await payload.findGlobal({ slug: 'site-settings' })
+
+    if (!needsSiteSettingsBackfill(settings)) {
+      return false
+    }
+
+    payload.logger.info('SiteSettings needs update. Running explicit backfill...')
+    await backfillSiteSettings(payload, settings as Record<string, any>)
+    return true
+  } catch (error) {
+    if (isSafeMissingGlobalError(error)) {
+      payload.logger.info('SiteSettings global is missing. Re-seeding during explicit backfill...')
+      await seedSiteSettings(payload)
+      return true
+    }
+
+    payload.logger.warn(
+      `Skipping site-settings repair because the global could not be read safely: ${getErrorMessage(error)}`,
+    )
+    return false
+  }
 }
 
 async function seedSiteSettings(payload: Payload): Promise<void> {
@@ -613,16 +788,12 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
 
   await payload.updateGlobal({
     slug: 'site-settings',
-    data: {
+    data: mergeSeedValue({
       header: {
         siteName: 'GARLICTON RECORDING STUDIO',
-        ...(existing.header ?? {}),
       },
       homepageLayout: {
-        ...(existing.homepageLayout ?? {}),
-        sectionOrder: Array.isArray(existing.homepageLayout?.sectionOrder) && existing.homepageLayout.sectionOrder.length > 0
-          ? existing.homepageLayout.sectionOrder
-          : defaultSectionOrder,
+        sectionOrder: defaultSectionOrder,
       },
       contactSection: {
         phoneLabel_ko: '전화번호',
@@ -635,7 +806,6 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
         instagramLabel_en: 'Instagram',
         kakaoChannelLabel_ko: '카카오 채널',
         kakaoChannelLabel_en: 'Kakao Channel',
-        ...(existing.contactSection ?? {}),
       },
       contactForm: {
         nameLabel_ko: '이름',
@@ -676,7 +846,6 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
         serviceMasteringLabel_en: 'Mastering',
         serviceProducingLabel_ko: '프로듀싱',
         serviceProducingLabel_en: 'Producing',
-        ...(existing.contactForm ?? {}),
       },
       contact: {
         phone: '0507-1313-6843',
@@ -692,7 +861,6 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
         mapFallbackLabel_en: 'View on Kakao Map',
         instagramUrl: 'https://www.instagram.com/garlicton_studio',
         kakaoChannelUrl: '',
-        ...(existing.contact ?? {}),
       },
       footer: {
         copyright_ko: '© {year} Garlicton Recording Studio. All rights reserved.',
@@ -715,7 +883,6 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
         showEmail: true,
         showInstagram: true,
         showKakaoChannel: false,
-        ...(existing.footer ?? {}),
       },
       pagesIndex: {
         visible: false,
@@ -742,13 +909,12 @@ async function backfillSiteSettings(payload: Payload, existing: Record<string, a
         metaTitle_en: 'Pages | Garlicton Studio',
         metaDescription_ko: '갈릭톤 스튜디오에서 발행한 CMS 페이지 목록입니다.',
         metaDescription_en: 'Published CMS pages from Garlicton Studio.',
-        ...(existing.pagesIndex ?? {}),
       },
-    },
+    }, existing),
   })
 }
 
-async function seedGallery(payload: Payload): Promise<void> {
+async function seedGallery(payload: Payload, phase: SeedPhase): Promise<void> {
   const hasCloudinaryConfig = Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&
       process.env.CLOUDINARY_API_KEY &&
@@ -756,11 +922,11 @@ async function seedGallery(payload: Payload): Promise<void> {
   )
 
   if (!hasCloudinaryConfig) {
-    payload.logger.info('Skipping gallery seed upload because Cloudinary credentials are missing.')
+    payload.logger.info(`Skipping gallery seed upload during ${phase} because Cloudinary credentials are missing.`)
     return
   }
 
-  payload.logger.info('Seeding gallery images...')
+  payload.logger.info(`Seeding gallery images during ${phase}...`)
   const galleryImages = [
     { file: 'studio-01.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },
     { file: 'studio-02.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },

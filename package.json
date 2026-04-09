@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node scripts/validate-runtime-env.mjs && node scripts/bootstrap-sqlite.mjs && next start",
+    "prepare:sqlite": "node scripts/prepare-sqlite.mjs",
+    "start": "node scripts/validate-runtime-env.mjs && npm run prepare:sqlite && next start",
     "lint": "next lint",
     "test": "tsx --test tests/**/*.test.ts"
   },
