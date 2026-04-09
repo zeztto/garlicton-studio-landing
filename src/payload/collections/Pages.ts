@@ -1,23 +1,9 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
-
-function normalizeSlug(value: unknown): string | undefined {
-  if (typeof value !== 'string') {
-    return undefined
-  }
-
-  const normalized = value
-    .trim()
-    .replace(/[\s_]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .replace(/[A-Z]/g, (char) => char.toLowerCase())
-
-  return normalized || undefined
-}
+import { normalizePageSlug } from '../../lib/pages-workflow'
 
 const syncPublishedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   const nextData = { ...data }
-  const normalizedSlug = normalizeSlug(nextData.slug)
+  const normalizedSlug = normalizePageSlug(nextData.slug)
 
   if (normalizedSlug) {
     nextData.slug = normalizedSlug

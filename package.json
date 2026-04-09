@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "node scripts/validate-runtime-env.mjs && node scripts/bootstrap-sqlite.mjs && next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.80.0",
@@ -36,6 +37,7 @@
     "eslint-config-next": "^15.3.9",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.0.0"
   }
 }

@@ -1,5 +1,10 @@
 import { cache, type JSX, type ReactNode } from 'react'
 import { getPayloadClient } from '@/lib/payload'
+import {
+  comparePublishedPages,
+  getPageWorkflowTimestamp,
+  shouldIncludePageInList,
+} from '@/lib/pages-workflow'
 import { getLocalizedText } from '@/lib/site-settings'
 
 export type Locale = 'ko' | 'en'
@@ -219,27 +224,6 @@ function coercePage(value: unknown): CmsPage | null {
   }
 }
 
-function comparePages(a: CmsPage, b: CmsPage): number {
-  const featuredDelta = Number(Boolean(b.featured)) - Number(Boolean(a.featured))
-  if (featuredDelta !== 0) {
-    return featuredDelta
-  }
-
-  const sortOrderA = typeof a.sortOrder === 'number' ? a.sortOrder : 0
-  const sortOrderB = typeof b.sortOrder === 'number' ? b.sortOrder : 0
-  if (sortOrderA !== sortOrderB) {
-    return sortOrderA - sortOrderB
-  }
-
-  const timestampA = new Date(getPageTimestamp(a) ?? 0).getTime()
-  const timestampB = new Date(getPageTimestamp(b) ?? 0).getTime()
-  if (timestampA !== timestampB) {
-    return timestampB - timestampA
-  }
-
-  return a.slug.localeCompare(b.slug)
-}
-
 const getPublishedPagesCached = cache(async (includeHidden: boolean): Promise<CmsPage[]> => {
   const payload = await getPayloadClient()
   const result = await payload.find({
@@ -255,8 +239,8 @@ const getPublishedPagesCached = cache(async (includeHidden: boolean): Promise<Cm
   })
 
   const docs = getDocs(result)
-    .filter((page) => includeHidden || page.showInList !== false)
-    .sort(comparePages)
+    .filter((page) => shouldIncludePageInList(page, includeHidden))
+    .sort(comparePublishedPages)
 
   return docs
 })
@@ -353,15 +337,7 @@ export function getLocalizedPageSummary(page: CmsPage, locale: Locale): string {
 }
 
 export function getPageTimestamp(page: CmsPage): string | undefined {
-  return (
-    page.publishedAt
-    || page.published_at
-    || page.updatedAt
-    || page.updated_at
-    || page.createdAt
-    || page.created_at
-    || undefined
-  )
+  return getPageWorkflowTimestamp(page)
 }
 
 export function getPageSummary(page: CmsPage, locale: Locale, maxLength = 220): string {
