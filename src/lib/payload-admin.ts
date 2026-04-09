@@ -1,4 +1,4 @@
-import { DEFAULT_HOME_SECTION_ORDER, type HomeSectionKey } from './site-settings'
+import { DEFAULT_HOME_SECTION_ORDER, type HomeSectionKey } from './site-settings.ts'
 
 type RecordLike = Record<string, unknown>
 

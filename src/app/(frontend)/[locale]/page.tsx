@@ -14,8 +14,13 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
-  const payload = await getPayloadClient()
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 }) as Record<string, any>
+  let settings: Record<string, any> = {}
+  try {
+    const payload = await getPayloadClient()
+    settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 }) as Record<string, any>
+  } catch {
+    settings = {}
+  }
 
   const title = getLocalizedText(settings.seo, 'metaTitle', locale, PAGE_TITLE)
   const description = getLocalizedText(
@@ -72,8 +77,13 @@ const jsonLd = {
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
-  const payload = await getPayloadClient()
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 }) as Record<string, any>
+  let settings: Record<string, any> = {}
+  try {
+    const payload = await getPayloadClient()
+    settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 }) as Record<string, any>
+  } catch {
+    settings = {}
+  }
 
   const sectionVisibility: Record<HomeSectionKey, boolean> = {
     hero: isSectionVisible(settings.hero),

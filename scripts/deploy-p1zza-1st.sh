@@ -21,4 +21,4 @@ ssh "$REMOTE_HOST" "mkdir -p '${REMOTE_DIR}/data' '${REMOTE_CADDY_DIR}/sites-ena
 
 scp "$ROOT_DIR/infra/caddy/garlicton.caddy" "${REMOTE_HOST}:${REMOTE_CADDY_DIR}/sites-enabled/garlicton-studio/garlicton.caddy"
 
-ssh "$REMOTE_HOST" "cd '${REMOTE_DIR}' && docker compose -f docker-compose.yml -f docker-compose.shared-gateway.yml up -d --build && docker network connect garlicton-studio_default caddy-gateway >/dev/null 2>&1 || true && cd '${REMOTE_CADDY_DIR}' && docker compose restart caddy"
+ssh "$REMOTE_HOST" "cd '${REMOTE_DIR}' && docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.shared-gateway.yml up -d --build && docker network connect garlicton-studio_default caddy-gateway >/dev/null 2>&1 || true && cd '${REMOTE_CADDY_DIR}' && docker compose restart caddy"
