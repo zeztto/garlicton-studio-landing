@@ -1,5 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import nodemailer from 'nodemailer'
+import {
+  createApiRequestContext,
+  createErrorResponse,
+  createSuccessResponse,
+  getErrorSummary,
+  logApiEvent,
+} from '@/lib/api-runtime'
 import { verifyTurnstileToken } from '@/lib/turnstile'
 import { getPayloadClient } from '@/lib/payload'
 
@@ -21,13 +28,22 @@ declare global {
 }
 
 export async function POST(req: NextRequest) {
-  const clientIp = getClientIp(req)
+  const context = createApiRequestContext(req, 'contact.submit')
+  const clientIp = context.clientIp
   const rateLimit = consumeRateLimitToken(clientIp)
   if (!rateLimit.ok) {
-    return NextResponse.json(
-      { error: 'Too many contact attempts. Please try again later.' },
+    logApiEvent('warn', context, 'contact.rate_limited', {
+      retryAfterMs: rateLimit.retryAfterMs,
+    })
+
+    return createErrorResponse(
+      context,
       {
+        code: 'contact_rate_limited',
+        message: 'Too many contact attempts. Please try again later.',
         status: 429,
+      },
+      {
         headers: {
           'Retry-After': String(Math.ceil(rateLimit.retryAfterMs / 1000)),
         },
@@ -39,7 +55,12 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    logApiEvent('warn', context, 'contact.invalid_json')
+    return createErrorResponse(context, {
+      code: 'invalid_json',
+      message: 'Invalid request body',
+      status: 400,
+    })
   }
 
   const { name, email, phone, services, genre, message, turnstileToken, website } = body as {
@@ -55,7 +76,8 @@ export async function POST(req: NextRequest) {
 
   // Honeypot: bots fill the hidden website field — return success silently
   if (website) {
-    return NextResponse.json({ success: true })
+    logApiEvent('info', context, 'contact.honeypot_triggered')
+    return createSuccessResponse(context)
   }
 
   const normalizedName = typeof name === 'string' ? name.trim() : ''
@@ -71,33 +93,77 @@ export async function POST(req: NextRequest) {
 
   // Validate required fields
   if (!normalizedName || !normalizedEmail || !normalizedMessage) {
-    return NextResponse.json({ error: 'Name, email, and message are required.' }, { status: 400 })
+    logApiEvent('warn', context, 'contact.validation_failed', {
+      reason: 'missing_required_fields',
+    })
+    return createErrorResponse(context, {
+      code: 'contact_validation_error',
+      message: 'Name, email, and message are required.',
+      status: 400,
+    })
   }
 
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(normalizedEmail)) {
-    return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
+    logApiEvent('warn', context, 'contact.validation_failed', {
+      reason: 'invalid_email',
+    })
+    return createErrorResponse(context, {
+      code: 'contact_validation_error',
+      message: 'Invalid email address.',
+      status: 400,
+    })
   }
 
   // Validate phone format (optional, but if provided must be digits/dashes/spaces/parens/plus only)
   if (normalizedPhone && !/^[\d\-+() ]{4,20}$/.test(normalizedPhone)) {
-    return NextResponse.json({ error: 'Invalid phone number format.' }, { status: 400 })
+    logApiEvent('warn', context, 'contact.validation_failed', {
+      reason: 'invalid_phone',
+    })
+    return createErrorResponse(context, {
+      code: 'contact_validation_error',
+      message: 'Invalid phone number format.',
+      status: 400,
+    })
   }
 
   if (captchaRequired && !turnstileSecret) {
-    return NextResponse.json({ error: 'Contact form is temporarily unavailable.' }, { status: 503 })
+    logApiEvent('error', context, 'contact.turnstile_not_configured')
+    return createErrorResponse(context, {
+      code: 'contact_temporarily_unavailable',
+      message: 'Contact form is temporarily unavailable.',
+      status: 503,
+    })
   }
 
   // Verify Turnstile token in production to keep the form fail-closed.
   if (captchaRequired) {
     if (!turnstileToken || typeof turnstileToken !== 'string') {
-      return NextResponse.json({ error: 'Captcha verification is required.' }, { status: 400 })
+      logApiEvent('warn', context, 'contact.captcha_missing')
+      return createErrorResponse(context, {
+        code: 'contact_captcha_required',
+        message: 'Captcha verification is required.',
+        status: 400,
+      })
     }
 
-    const turnstileValid = await verifyTurnstileToken(turnstileToken, clientIp)
+    let turnstileValid = false
+    try {
+      turnstileValid = await verifyTurnstileToken(turnstileToken, clientIp)
+    } catch (error) {
+      logApiEvent('error', context, 'contact.captcha_check_failed', {
+        error: getErrorSummary(error),
+      })
+    }
+
     if (!turnstileValid) {
-      return NextResponse.json({ error: 'Captcha verification failed.' }, { status: 400 })
+      logApiEvent('warn', context, 'contact.captcha_rejected')
+      return createErrorResponse(context, {
+        code: 'contact_captcha_failed',
+        message: 'Captcha verification failed.',
+        status: 400,
+      })
     }
   }
 
@@ -135,6 +201,8 @@ export async function POST(req: NextRequest) {
     </div>
   `
 
+  let inquirySaved = false
+
   // Save to Inquiries collection in CMS
   try {
     const payload = await getPayloadClient()
@@ -144,18 +212,22 @@ export async function POST(req: NextRequest) {
         name: normalizedName,
         email: normalizedEmail,
         phone: normalizedPhone || undefined,
-        services: normalizedServices.length > 0 ? normalizedServices : undefined,
+        services: normalizedServices.length > 0 ? normalizedServices : null,
         genre: normalizedGenre || undefined,
         message: normalizedMessage,
         isRead: false,
       },
     })
+    inquirySaved = true
   } catch (err) {
-    console.error('[Contact API] DB save error:', err)
+    logApiEvent('error', context, 'contact.persist_failed', {
+      error: getErrorSummary(err),
+    })
     // Continue to send email even if DB save fails
   }
 
   // Send email notification (only if SMTP is configured)
+  let emailSent = false
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     try {
       const transporter = nodemailer.createTransport({
@@ -175,13 +247,26 @@ export async function POST(req: NextRequest) {
         html: htmlBody,
         replyTo: normalizedEmail,
       })
+      emailSent = true
     } catch (err) {
-      console.error('[Contact API] Email send error:', err)
+      logApiEvent('error', context, 'contact.email_failed', {
+        error: getErrorSummary(err),
+      })
       // Don't fail the request — inquiry is already saved to DB
     }
   }
 
-  return NextResponse.json({ success: true })
+  logApiEvent('info', context, 'contact.accepted', {
+    emailConfigured: Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
+    emailDomain: getEmailDomain(normalizedEmail),
+    emailSent,
+    hasGenre: Boolean(normalizedGenre),
+    hasPhone: Boolean(normalizedPhone),
+    inquirySaved,
+    serviceCount: normalizedServices.length,
+  })
+
+  return createSuccessResponse(context)
 }
 
 function escapeHtml(str: string): string {
@@ -197,13 +282,10 @@ function isAllowedService(service: unknown): service is AllowedService {
   return typeof service === 'string' && ALLOWED_SERVICE_SET.has(service as AllowedService)
 }
 
-function getClientIp(req: NextRequest): string {
-  const forwardedFor = req.headers.get('x-forwarded-for')
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim()
-  }
+function getEmailDomain(email: string): string | null {
+  const [, domain] = email.split('@')
 
-  return req.headers.get('x-real-ip')?.trim() || 'unknown'
+  return domain || null
 }
 
 function consumeRateLimitToken(clientIp: string): { ok: boolean; retryAfterMs: number } {
