@@ -1,9 +1,10 @@
-import { getTranslations } from 'next-intl/server'
 import { getPayloadClient } from '@/lib/payload'
 import { MediaEmbed } from '@/components/ui/MediaEmbed'
+import { getLocalizedText } from '@/lib/site-settings'
 
 interface PortfolioProps {
   locale: string
+  content?: Record<string, unknown> | null
 }
 
 interface PortfolioItem {
@@ -19,9 +20,7 @@ interface PortfolioItem {
   sortOrder: number
 }
 
-export async function Portfolio({ locale }: PortfolioProps) {
-  const t = await getTranslations({ locale, namespace: 'portfolio' })
-
+export async function Portfolio({ locale, content }: PortfolioProps) {
   let items: PortfolioItem[] = []
 
   try {
@@ -36,6 +35,21 @@ export async function Portfolio({ locale }: PortfolioProps) {
     // Render empty on failure — avoids crashing the page
   }
 
+  const eyebrow = getLocalizedText(content, 'eyebrow', locale, 'Portfolio')
+  const title = getLocalizedText(content, 'title', locale, 'Works')
+  const subtitle = getLocalizedText(
+    content,
+    'subtitle',
+    locale,
+    locale === 'ko' ? '함께 멋진 음악을 만들어가고 싶습니다.' : 'We want to create great music together.',
+  )
+  const emptyState = getLocalizedText(
+    content,
+    'emptyState',
+    locale,
+    locale === 'ko' ? '포트폴리오 항목이 아직 없습니다.' : 'No portfolio items yet.',
+  )
+
   return (
     <section id="portfolio" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
       <div className="max-w-7xl mx-auto">
@@ -45,19 +59,19 @@ export async function Portfolio({ locale }: PortfolioProps) {
             className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            Portfolio
+            {eyebrow}
           </p>
           <h2
             className="text-[clamp(2rem,4vw,3.2rem)] font-semibold uppercase tracking-[0.08em] text-[#F0F0F0] leading-tight"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            {t('title')}
+            {title}
           </h2>
           <p
             className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
-            {t('subtitle')}
+            {subtitle}
           </p>
         </div>
 
@@ -126,7 +140,7 @@ export async function Portfolio({ locale }: PortfolioProps) {
             className="text-[#999999] text-sm tracking-wider"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            No portfolio items yet.
+            {emptyState}
           </p>
         )}
       </div>

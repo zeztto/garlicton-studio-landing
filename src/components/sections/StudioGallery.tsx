@@ -1,9 +1,10 @@
-import { getTranslations } from 'next-intl/server'
 import { getPayloadClient } from '@/lib/payload'
 import { StudioGalleryClient } from './StudioGalleryClient'
+import { getLocalizedText } from '@/lib/site-settings'
 
 interface StudioGalleryProps {
   locale: string
+  content?: Record<string, unknown> | null
 }
 
 interface GalleryItem {
@@ -20,9 +21,7 @@ interface GalleryItem {
   sortOrder: number
 }
 
-export async function StudioGallery({ locale }: StudioGalleryProps) {
-  const t = await getTranslations({ locale, namespace: 'studio' })
-
+export async function StudioGallery({ locale, content }: StudioGalleryProps) {
   let items: GalleryItem[] = []
 
   try {
@@ -48,6 +47,54 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
       height: item.image?.height ?? undefined,
     }))
 
+  const eyebrow = getLocalizedText(content, 'eyebrow', locale, 'Studio')
+  const title = getLocalizedText(content, 'title', locale, 'The Studio')
+  const subtitle = getLocalizedText(
+    content,
+    'subtitle',
+    locale,
+    locale === 'ko'
+      ? '더 나은 결과를 위해 함께 고민하고 도전하는 과정을 중요하게 생각합니다.'
+      : 'We value the process of working together and pushing for better results.',
+  )
+  const overview = getLocalizedText(
+    content,
+    'overview',
+    locale,
+    locale === 'ko'
+      ? '갈릭톤 스튜디오는 강화도에 자리한 메탈 음악 전문 레코딩 스튜디오입니다. 보컬 레코딩부터 악기 녹음, 믹싱, 마스터링까지 음악 제작의 전 여정을 함께합니다.'
+      : 'Garlicton Studio is a metal music recording studio located on Ganghwa Island. From vocal and instrument recording to mixing and mastering — we walk the entire journey of music production with you.',
+  )
+  const authenticTitle = getLocalizedText(content, 'authenticTitle', locale, locale === 'ko' ? '진정성 있는 사운드' : 'Authentic Sound')
+  const authenticDesc = getLocalizedText(
+    content,
+    'authenticDesc',
+    locale,
+    locale === 'ko'
+      ? '메탈 음악의 본질을 이해하는 엔지니어가 날것의 에너지와 디테일을 정확하게 구현합니다.'
+      : 'An engineer who understands the essence of metal music precisely captures raw energy and detail.',
+  )
+  const comfortableTitle = getLocalizedText(
+    content,
+    'comfortableTitle',
+    locale,
+    locale === 'ko' ? '편안한 작업 환경' : 'Comfortable Environment',
+  )
+  const comfortableDesc = getLocalizedText(
+    content,
+    'comfortableDesc',
+    locale,
+    locale === 'ko'
+      ? '주택형 구조의 프라이빗 공간에서 시간 압박 없이 창작에 집중할 수 있습니다.'
+      : 'Focus on creation without time pressure in our private, house-style space.',
+  )
+  const emptyState = getLocalizedText(
+    content,
+    'emptyState',
+    locale,
+    locale === 'ko' ? 'CMS에서 갤러리 사진을 추가해주세요.' : 'Add gallery photos from the CMS.',
+  )
+
   return (
     <section id="studio" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
       <div className="max-w-7xl mx-auto">
@@ -57,19 +104,19 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
             className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            Studio
+            {eyebrow}
           </p>
           <h2
             className="text-[clamp(2rem,4vw,3.2rem)] font-semibold uppercase tracking-[0.08em] text-[#F0F0F0] leading-tight"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            {t('title')}
+            {title}
           </h2>
           <p
             className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
-            {t('subtitle')}
+            {subtitle}
           </p>
         </div>
 
@@ -82,7 +129,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               className="text-[#FFFFFFDD] font-light text-[clamp(0.875rem,1.3vw,0.95rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
-              {t('description')}
+              {overview}
             </p>
           </div>
 
@@ -93,13 +140,13 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               className="text-[13px] tracking-[0.15em] uppercase text-[#F0F0F0] font-medium"
               style={{ fontFamily: 'var(--font-inter)' }}
             >
-              {t('authentic')}
+              {authenticTitle}
             </h3>
             <p
               className="text-[#CCCCCC] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
-              {t('authenticDesc')}
+              {authenticDesc}
             </p>
           </div>
 
@@ -110,13 +157,13 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
               className="text-[13px] tracking-[0.15em] uppercase text-[#F0F0F0] font-medium"
               style={{ fontFamily: 'var(--font-inter)' }}
             >
-              {t('comfortable')}
+              {comfortableTitle}
             </h3>
             <p
               className="text-[#CCCCCC] font-light text-[clamp(0.8rem,1.2vw,0.875rem)] leading-[1.9]"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
-              {t('comfortableDesc')}
+              {comfortableDesc}
             </p>
           </div>
         </div>
@@ -127,7 +174,7 @@ export async function StudioGallery({ locale }: StudioGalleryProps) {
         ) : (
           <div className="text-center py-16">
             <p className="text-[#999999] text-sm">
-              {locale === 'ko' ? 'CMS에서 갤러리 사진을 추가해주세요.' : 'Add gallery photos from the CMS.'}
+              {emptyState}
             </p>
           </div>
         )}

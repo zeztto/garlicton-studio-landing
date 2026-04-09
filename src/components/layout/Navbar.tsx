@@ -1,17 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
 import { Menu } from 'lucide-react'
 import LanguageToggle from '@/components/ui/LanguageToggle'
 import MobileMenu from '@/components/ui/MobileMenu'
 
-interface NavbarProps {
-  siteName?: string
+export interface NavLinkItem {
+  href: string
+  label: string
 }
 
-export default function Navbar({ siteName = 'Garlicton Recording Studio' }: NavbarProps) {
-  const t = useTranslations('nav')
+interface NavbarProps {
+  siteName?: string
+  navLinks?: NavLinkItem[]
+}
+
+export default function Navbar({ siteName = 'Garlicton Recording Studio', navLinks = [] }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -22,14 +26,6 @@ export default function Navbar({ siteName = 'Garlicton Recording Studio' }: Navb
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  const navLinks = [
-    { href: '#about', label: t('about') },
-    { href: '#services', label: t('services') },
-    { href: '#portfolio', label: t('portfolio') },
-    { href: '#studio', label: t('studio') },
-    { href: '#contact', label: t('contact') },
-  ]
 
   const handleNavClick = (
     e: React.MouseEvent<HTMLAnchorElement>,

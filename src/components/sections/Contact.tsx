@@ -1,32 +1,36 @@
-import { getTranslations } from 'next-intl/server'
-import { getPayloadClient } from '@/lib/payload'
 import { ContactForm } from '@/components/ui/ContactForm'
 import { KakaoMap } from '@/components/ui/KakaoMap'
+import { getLocalizedText } from '@/lib/site-settings'
 
 interface ContactProps {
   locale: string
+  content?: Record<string, unknown> | null
+  contactInfo?: Record<string, unknown> | null
 }
 
-export async function Contact({ locale }: ContactProps) {
-  const t = await getTranslations({ locale, namespace: 'contact' })
-
+export async function Contact({ locale, content, contactInfo }: ContactProps) {
   const fontBody = locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)'
 
-  let phone = '0507-1313-6843'
-  let addressKo = '인천 강화군 강화읍 북문길67번길 8-1'
-  let addressEn = '8-1 Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon'
-  let instagramUrl = 'https://www.instagram.com/garlicton_studio'
-
-  try {
-    const payload = await getPayloadClient()
-    const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
-    phone = settings.contact?.phone ?? phone
-    addressKo = settings.contact?.address_ko ?? addressKo
-    addressEn = settings.contact?.address_en ?? addressEn
-    instagramUrl = settings.contact?.instagramUrl ?? instagramUrl
-  } catch {
-    // fall through to defaults
-  }
+  const phone = typeof contactInfo?.phone === 'string' && contactInfo.phone.trim()
+    ? contactInfo.phone
+    : '0507-1313-6843'
+  const addressKo = getLocalizedText(contactInfo, 'address', 'ko', '인천 강화군 강화읍 북문길67번길 8-1')
+  const addressEn = getLocalizedText(contactInfo, 'address', 'en', '8-1 Bukmun-gil 67beon-gil, Ganghwa-eup, Ganghwa-gun, Incheon')
+  const instagramUrl =
+    typeof contactInfo?.instagramUrl === 'string' && contactInfo.instagramUrl.trim()
+      ? contactInfo.instagramUrl
+      : 'https://www.instagram.com/garlicton_studio'
+  const eyebrow = getLocalizedText(content, 'eyebrow', locale, 'Contact')
+  const title = getLocalizedText(content, 'title', locale, 'Contact Us')
+  const subtitle = getLocalizedText(content, 'subtitle', locale, locale === 'ko' ? '편하게 연락주세요.' : 'Feel free to reach out.')
+  const reservation = getLocalizedText(
+    content,
+    'reservation',
+    locale,
+    locale === 'ko'
+      ? '갈릭톤 스튜디오는 100% 예약제로 운영되며 방문 전 문의가 필요합니다.'
+      : 'Garlicton Studio operates 100% by reservation. Please inquire before visiting.',
+  )
 
   const phoneHref = `tel:${phone.replace(/-/g, '')}`
   const instagramHandle = instagramUrl.replace(/\/$/, '').split('/').pop() ?? 'garlicton_studio'
@@ -40,19 +44,19 @@ export async function Contact({ locale }: ContactProps) {
             className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            Contact
+            {eyebrow}
           </p>
           <h2
             className="text-[clamp(2rem,4vw,3.2rem)] font-semibold uppercase tracking-[0.08em] text-[#F0F0F0] leading-tight"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            {t('title')}
+            {title}
           </h2>
           <p
             className="mt-4 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic max-w-2xl"
             style={{ fontFamily: fontBody }}
           >
-            {t('subtitle')}
+            {subtitle}
           </p>
         </div>
 
@@ -72,7 +76,7 @@ export async function Contact({ locale }: ContactProps) {
                 className="text-[#FFFFFFDD] font-light text-sm leading-[1.8]"
                 style={{ fontFamily: fontBody }}
               >
-                {t('reservation')}
+                {reservation}
               </p>
             </div>
 

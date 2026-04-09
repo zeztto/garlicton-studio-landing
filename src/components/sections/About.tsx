@@ -1,9 +1,10 @@
-import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 import { getPayloadClient } from '@/lib/payload'
+import { getLocalizedText } from '@/lib/site-settings'
 
 interface AboutProps {
   locale: string
+  content?: Record<string, unknown> | null
 }
 
 interface CareerItem {
@@ -13,9 +14,7 @@ interface CareerItem {
   description_en?: string | null
 }
 
-export async function About({ locale }: AboutProps) {
-  const t = await getTranslations({ locale, namespace: 'about' })
-
+export async function About({ locale, content }: AboutProps) {
   let name = locale === 'ko' ? '이주희' : 'Lee Ju Hee'
   let title = 'Founder / Producer / Mixer / Mastering Engineer'
   let career: CareerItem[] = []
@@ -53,6 +52,36 @@ export async function About({ locale }: AboutProps) {
     return desc.includes('노미네이트') || desc.toLowerCase().includes('nomin')
   }).length
 
+  const eyebrow = getLocalizedText(content, 'eyebrow', locale, 'Garlicton')
+  const sectionTitle = getLocalizedText(content, 'title', locale, 'The Staff')
+  const sectionSubtitle = getLocalizedText(
+    content,
+    'subtitle',
+    locale,
+    locale === 'ko' ? '최고의 테이크가 최고의 결과물을 만든다.' : 'The best take creates the best result.',
+  )
+  const experienceLabel = getLocalizedText(
+    content,
+    'experienceLabel',
+    locale,
+    locale === 'ko' ? '15년 이상의 메탈 음악 산업 경력' : '15+ years in the metal music industry',
+  )
+  const accompany = getLocalizedText(
+    content,
+    'accompany',
+    locale,
+    locale === 'ko'
+      ? '경험 많은 엔지니어가 세션의 시작부터 최종 마스터까지 전 과정을 함께합니다.'
+      : 'An experienced engineer accompanies you from the first session to the final master.',
+  )
+  const winsLabel = getLocalizedText(content, 'winsLabel', locale, locale === 'ko' ? '수상' : 'Wins')
+  const nominationsLabel = getLocalizedText(
+    content,
+    'nominationsLabel',
+    locale,
+    locale === 'ko' ? '노미네이트' : 'Nominations',
+  )
+
   return (
     <section id="about" className="py-28 px-6 md:px-12 lg:px-20 border-t border-white/10">
       <div className="max-w-4xl mx-auto">
@@ -62,19 +91,19 @@ export async function About({ locale }: AboutProps) {
             className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            {t('studioName')}
+            {eyebrow}
           </p>
           <h2
             className="text-[clamp(2rem,4vw,3.2rem)] font-semibold uppercase tracking-[0.08em] text-[#F0F0F0] leading-tight"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            {t('title')}
+            {sectionTitle}
           </h2>
           <p
             className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] italic"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
-            {t('subtitle')}
+            {sectionSubtitle}
           </p>
         </div>
 
@@ -108,13 +137,13 @@ export async function About({ locale }: AboutProps) {
               className="text-[12px] text-[#CCCCCC] tracking-wider mt-1"
               style={{ fontFamily: 'var(--font-inter)' }}
             >
-              {t('experience')}
+              {experienceLabel}
             </p>
             <p
               className="text-[clamp(0.8rem,1.2vw,0.875rem)] text-[#FFFFFFDD] font-light leading-[1.8] mt-2"
               style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
             >
-              {t('accompany')}
+              {accompany}
             </p>
 
             {/* KMA highlights */}
@@ -130,7 +159,7 @@ export async function About({ locale }: AboutProps) {
                   className="text-[12px] uppercase tracking-[0.2em] text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
-                  KMA {locale === 'ko' ? '수상' : 'Wins'}
+                  KMA {winsLabel}
                 </span>
               </div>
               <div className="flex items-baseline gap-3">
@@ -144,7 +173,7 @@ export async function About({ locale }: AboutProps) {
                   className="text-[12px] uppercase tracking-[0.2em] text-[#CCCCCC]"
                   style={{ fontFamily: 'var(--font-inter)' }}
                 >
-                  KMA {locale === 'ko' ? '노미네이트' : 'Nominations'}
+                  KMA {nominationsLabel}
                 </span>
               </div>
             </div>

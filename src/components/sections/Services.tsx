@@ -1,8 +1,9 @@
-import { getTranslations } from 'next-intl/server'
 import { getPayloadClient } from '@/lib/payload'
+import { getLocalizedText } from '@/lib/site-settings'
 
 interface ServicesProps {
   locale: string
+  content?: Record<string, unknown> | null
 }
 
 interface ServiceItem {
@@ -14,9 +15,7 @@ interface ServiceItem {
   sortOrder: number
 }
 
-export async function Services({ locale }: ServicesProps) {
-  const t = await getTranslations({ locale, namespace: 'services' })
-
+export async function Services({ locale, content }: ServicesProps) {
   let services: ServiceItem[] = []
 
   try {
@@ -31,6 +30,17 @@ export async function Services({ locale }: ServicesProps) {
     // If fetch fails, render empty — avoids crashing the page
   }
 
+  const eyebrow = getLocalizedText(content, 'eyebrow', locale, 'Services')
+  const title = getLocalizedText(content, 'title', locale, locale === 'ko' ? '작업 프로세스' : 'Our Process')
+  const subtitle = getLocalizedText(
+    content,
+    'subtitle',
+    locale,
+    locale === 'ko'
+      ? '음원은 아티스트의 열정이 담긴 창이며, 곧 미래를 설계하는 일입니다.'
+      : "A recorded work is a window into the artist's passion—and an act of designing the future.",
+  )
+
   return (
     <section id="services" className="py-28 px-6 md:px-12 lg:px-20">
       <div className="max-w-4xl mx-auto">
@@ -40,19 +50,19 @@ export async function Services({ locale }: ServicesProps) {
             className="text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC] mb-4"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            Services
+            {eyebrow}
           </p>
           <h2
             className="text-[clamp(2rem,4vw,3.2rem)] font-semibold uppercase tracking-[0.08em] text-[#F0F0F0] leading-tight"
             style={{ fontFamily: 'var(--font-inter)' }}
           >
-            {t('title')}
+            {title}
           </h2>
           <p
             className="mt-6 text-[#CCCCCC] font-light leading-[1.9] text-[clamp(0.875rem,1.4vw,1rem)] max-w-2xl"
             style={{ fontFamily: locale === 'ko' ? 'var(--font-noto-sans-kr)' : 'var(--font-inter)' }}
           >
-            {t('subtitle')}
+            {subtitle}
           </p>
         </div>
 

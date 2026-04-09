@@ -1,5 +1,45 @@
 import type { GlobalConfig } from 'payload'
 
+const localizedTextField = (
+  name: string,
+  label: string,
+  defaultKo: string,
+  defaultEn: string,
+) => ([
+  {
+    name: `${name}_ko`,
+    type: 'text' as const,
+    label: `${label} (한국어)`,
+    defaultValue: defaultKo,
+  },
+  {
+    name: `${name}_en`,
+    type: 'text' as const,
+    label: `${label} (English)`,
+    defaultValue: defaultEn,
+  },
+])
+
+const localizedTextareaField = (
+  name: string,
+  label: string,
+  defaultKo: string,
+  defaultEn: string,
+) => ([
+  {
+    name: `${name}_ko`,
+    type: 'textarea' as const,
+    label: `${label} (한국어)`,
+    defaultValue: defaultKo,
+  },
+  {
+    name: `${name}_en`,
+    type: 'textarea' as const,
+    label: `${label} (English)`,
+    defaultValue: defaultEn,
+  },
+])
+
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: '사이트 설정',
@@ -17,17 +57,187 @@ export const SiteSettings: GlobalConfig = {
         { name: 'logo', type: 'upload', relationTo: 'media', label: '로고 이미지 (선택)' },
       ],
     },
+    {
+      name: 'navigation',
+      type: 'group',
+      label: '네비게이션',
+      fields: [
+        ...localizedTextField('aboutLabel', '소개 섹션 네비게이션 라벨', '소개', 'About'),
+        ...localizedTextField('servicesLabel', '서비스 섹션 네비게이션 라벨', '서비스', 'Services'),
+        ...localizedTextField('portfolioLabel', '포트폴리오 섹션 네비게이션 라벨', '포트폴리오', 'Portfolio'),
+        ...localizedTextField('studioLabel', '스튜디오 섹션 네비게이션 라벨', '스튜디오', 'Studio'),
+        ...localizedTextField('contactLabel', '연락처 섹션 네비게이션 라벨', '연락처', 'Contact'),
+      ],
+    },
+    {
+      name: 'homepageLayout',
+      type: 'group',
+      label: '홈페이지 구성',
+      fields: [
+        {
+          name: 'sectionOrder',
+          type: 'array',
+          label: '섹션 순서',
+          admin: {
+            description: 'Hero를 포함한 홈페이지 섹션의 노출 순서를 제어합니다.',
+          },
+          defaultValue: [
+            { section: 'hero' },
+            { section: 'services' },
+            { section: 'about' },
+            { section: 'portfolio' },
+            { section: 'studio' },
+            { section: 'contact' },
+          ],
+          fields: [
+            {
+              name: 'section',
+              type: 'select',
+              required: true,
+              label: '섹션',
+              options: [
+                { label: 'Hero', value: 'hero' },
+                { label: 'Services', value: 'services' },
+                { label: 'About', value: 'about' },
+                { label: 'Portfolio', value: 'portfolio' },
+                { label: 'Studio', value: 'studio' },
+                { label: 'Contact', value: 'contact' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
     // 히어로
     {
       name: 'hero',
       type: 'group',
       label: '히어로 섹션',
       fields: [
+        { name: 'visible', type: 'checkbox', label: '노출', defaultValue: true },
         { name: 'background', type: 'upload', relationTo: 'media', label: '배경 이미지' },
+        ...localizedTextField('titlePrimary', '메인 타이틀 1행', 'Garlicton', 'Garlicton'),
+        ...localizedTextField('titleSecondary', '메인 타이틀 2행', 'Recording Studio', 'Recording Studio'),
         { name: 'tagline_ko', type: 'text', label: '태그라인 (한국어)', defaultValue: '더 멀리, 더 깊이있게' },
         { name: 'tagline_en', type: 'text', label: 'Tagline (English)', defaultValue: 'Further and Deeper' },
+        ...localizedTextareaField(
+          'intro',
+          '인트로 문장',
+          '보컬 레코딩부터 악기 녹음, 믹싱, 마스터링까지 음악 제작의 전 여정을 함께합니다.',
+          'From vocal and instrument recording to mixing and mastering — we walk the entire journey of music production with you.',
+        ),
         { name: 'subtitle_ko', type: 'textarea', label: '서브카피 (한국어)', defaultValue: '음악에 쏟아부은 시간과 노력은 결코 헛되지 않으며,\n의미 있는 결과로 이어진다고 생각합니다.\n아티스트의 비전을 현실로 만들고,\n미래로 나아갈 수 있도록 함께 돕겠습니다.' },
         { name: 'subtitle_en', type: 'textarea', label: 'Subtitle (English)', defaultValue: 'The time and effort poured into music is never in vain—\nit leads to meaningful results.\nWe help turn artistic vision into reality\nand move forward into the future together.' },
+        ...localizedTextareaField(
+          'philosophy',
+          '철학 문장',
+          '거창하지 않아도 괜찮습니다. 중요한 건 당신의 음악이 제대로 표현되는 것입니다.',
+          "It doesn't have to be grand. What matters is that your music is expressed the way it deserves.",
+        ),
+        ...localizedTextField('ctaLabel', 'CTA 버튼 문구', '문의하기', 'Get in Touch'),
+        { name: 'ctaHref', type: 'text', label: 'CTA 링크', defaultValue: '#contact' },
+      ],
+    },
+    {
+      name: 'servicesSection',
+      type: 'group',
+      label: '서비스 섹션',
+      fields: [
+        { name: 'visible', type: 'checkbox', label: '노출', defaultValue: true },
+        ...localizedTextField('eyebrow', '섹션 상단 라벨', 'Services', 'Services'),
+        ...localizedTextField('title', '섹션 제목', '작업 프로세스', 'Our Process'),
+        ...localizedTextareaField(
+          'subtitle',
+          '섹션 설명',
+          '음원은 아티스트의 열정이 담긴 창이며, 곧 미래를 설계하는 일입니다.',
+          "A recorded work is a window into the artist's passion—and an act of designing the future.",
+        ),
+      ],
+    },
+    {
+      name: 'aboutSection',
+      type: 'group',
+      label: '소개 섹션',
+      fields: [
+        { name: 'visible', type: 'checkbox', label: '노출', defaultValue: true },
+        ...localizedTextField('eyebrow', '섹션 상단 라벨', 'Garlicton', 'Garlicton'),
+        ...localizedTextField('title', '섹션 제목', 'The Staff', 'The Staff'),
+        ...localizedTextareaField('subtitle', '섹션 설명', '최고의 테이크가 최고의 결과물을 만든다.', 'The best take creates the best result.'),
+        ...localizedTextField('experienceLabel', '경력 라벨', '15년 이상의 메탈 음악 산업 경력', '15+ years in the metal music industry'),
+        ...localizedTextareaField(
+          'accompany',
+          '보조 설명',
+          '경험 많은 엔지니어가 세션의 시작부터 최종 마스터까지 전 과정을 함께합니다.',
+          'An experienced engineer accompanies you from the first session to the final master.',
+        ),
+        ...localizedTextField('winsLabel', '수상 라벨', '수상', 'Wins'),
+        ...localizedTextField('nominationsLabel', '노미네이트 라벨', '노미네이트', 'Nominations'),
+      ],
+    },
+    {
+      name: 'portfolioSection',
+      type: 'group',
+      label: '포트폴리오 섹션',
+      fields: [
+        { name: 'visible', type: 'checkbox', label: '노출', defaultValue: true },
+        ...localizedTextField('eyebrow', '섹션 상단 라벨', 'Portfolio', 'Portfolio'),
+        ...localizedTextField('title', '섹션 제목', 'Works', 'Works'),
+        ...localizedTextareaField('subtitle', '섹션 설명', '함께 멋진 음악을 만들어가고 싶습니다.', 'We want to create great music together.'),
+        ...localizedTextField('emptyState', '비어 있을 때 문구', '포트폴리오 항목이 아직 없습니다.', 'No portfolio items yet.'),
+      ],
+    },
+    {
+      name: 'studioSection',
+      type: 'group',
+      label: '스튜디오 섹션',
+      fields: [
+        { name: 'visible', type: 'checkbox', label: '노출', defaultValue: true },
+        ...localizedTextField('eyebrow', '섹션 상단 라벨', 'Studio', 'Studio'),
+        ...localizedTextField('title', '섹션 제목', 'The Studio', 'The Studio'),
+        ...localizedTextareaField(
+          'subtitle',
+          '섹션 설명',
+          '더 나은 결과를 위해 함께 고민하고 도전하는 과정을 중요하게 생각합니다.',
+          'We value the process of working together and pushing for better results.',
+        ),
+        ...localizedTextareaField(
+          'overview',
+          '개요',
+          '갈릭톤 스튜디오는 강화도에 자리한 메탈 음악 전문 레코딩 스튜디오입니다. 보컬 레코딩부터 악기 녹음, 믹싱, 마스터링까지 음악 제작의 전 여정을 함께합니다.',
+          'Garlicton Studio is a metal music recording studio located on Ganghwa Island. From vocal and instrument recording to mixing and mastering — we walk the entire journey of music production with you.',
+        ),
+        ...localizedTextField('authenticTitle', '특징 1 제목', '진정성 있는 사운드', 'Authentic Sound'),
+        ...localizedTextareaField(
+          'authenticDesc',
+          '특징 1 설명',
+          '메탈 음악의 본질을 이해하는 엔지니어가 날것의 에너지와 디테일을 정확하게 구현합니다.',
+          'An engineer who understands the essence of metal music precisely captures raw energy and detail.',
+        ),
+        ...localizedTextField('comfortableTitle', '특징 2 제목', '편안한 작업 환경', 'Comfortable Environment'),
+        ...localizedTextareaField(
+          'comfortableDesc',
+          '특징 2 설명',
+          '주택형 구조의 프라이빗 공간에서 시간 압박 없이 창작에 집중할 수 있습니다.',
+          'Focus on creation without time pressure in our private, house-style space.',
+        ),
+        ...localizedTextField('emptyState', '비어 있을 때 문구', 'CMS에서 갤러리 사진을 추가해주세요.', 'Add gallery photos from the CMS.'),
+      ],
+    },
+    {
+      name: 'contactSection',
+      type: 'group',
+      label: '문의 섹션',
+      fields: [
+        { name: 'visible', type: 'checkbox', label: '노출', defaultValue: true },
+        ...localizedTextField('eyebrow', '섹션 상단 라벨', 'Contact', 'Contact'),
+        ...localizedTextField('title', '섹션 제목', 'Contact Us', 'Contact Us'),
+        ...localizedTextareaField('subtitle', '섹션 설명', '편하게 연락주세요.', 'Feel free to reach out.'),
+        ...localizedTextareaField(
+          'reservation',
+          '예약 안내 문구',
+          '갈릭톤 스튜디오는 100% 예약제로 운영되며 방문 전 문의가 필요합니다.',
+          'Garlicton Studio operates 100% by reservation. Please inquire before visiting.',
+        ),
       ],
     },
     // 연락처 정보
@@ -61,8 +271,8 @@ export const SiteSettings: GlobalConfig = {
       type: 'group',
       label: 'SEO',
       fields: [
-        { name: 'metaTitle_ko', type: 'text', label: '메타 제목 (한국어)', defaultValue: '갈릭톤 스튜디오 | 메탈 음악 전문 레코딩 스튜디오' },
-        { name: 'metaTitle_en', type: 'text', label: 'Meta Title (English)', defaultValue: 'Garlicton Studio | Metal Music Recording Studio' },
+        { name: 'metaTitle_ko', type: 'text', label: '메타 제목 (한국어)', defaultValue: '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다' },
+        { name: 'metaTitle_en', type: 'text', label: 'Meta Title (English)', defaultValue: 'Garlicton Studio | The Best Take Creates the Best Result' },
         { name: 'metaDescription_ko', type: 'textarea', label: '메타 설명 (한국어)', defaultValue: '메탈 음악 전문 레코딩, 믹싱, 마스터링, 프로듀싱 스튜디오. 15년 이상의 경력을 가진 전문 엔지니어가 함께합니다.' },
         { name: 'metaDescription_en', type: 'textarea', label: 'Meta Description (English)', defaultValue: 'Professional metal music recording, mixing, mastering, and producing studio with 15+ years of industry experience.' },
         { name: 'ogImage', type: 'upload', relationTo: 'media', label: 'OG 이미지' },
