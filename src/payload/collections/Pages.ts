@@ -1,7 +1,27 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
+function normalizeSlug(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const normalized = value
+    .trim()
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .replace(/[A-Z]/g, (char) => char.toLowerCase())
+
+  return normalized || undefined
+}
+
 const syncPublishedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   const nextData = { ...data }
+  const normalizedSlug = normalizeSlug(nextData.slug)
+
+  if (normalizedSlug) {
+    nextData.slug = normalizedSlug
+  }
 
   if (nextData.status === 'published' && !nextData.publishedAt) {
     nextData.publishedAt = originalDoc?.publishedAt ?? new Date().toISOString()
@@ -17,7 +37,7 @@ export const Pages: CollectionConfig = {
     group: '📄 콘텐츠',
     description: '공개 페이지, 공지, 소식성 콘텐츠를 관리합니다. `published` 상태인 문서만 공개 라우트에 노출됩니다.',
     useAsTitle: 'title_ko',
-    defaultColumns: ['title_ko', 'status', 'publishedAt', 'updatedAt'],
+    defaultColumns: ['title_ko', 'status', 'featured', 'sortOrder', 'publishedAt'],
   },
   hooks: {
     beforeChange: [syncPublishedAt],
@@ -57,7 +77,7 @@ export const Pages: CollectionConfig = {
           unique: true,
           label: '슬러그 (URL)',
           admin: {
-            width: '50%',
+            width: '40%',
             description: '예: `mixing-guide`. 저장 후 공개 URL은 `/[locale]/pages/[slug]` 형식입니다.',
           },
         },
@@ -71,7 +91,7 @@ export const Pages: CollectionConfig = {
             { label: '게시됨', value: 'published' },
           ],
           admin: {
-            width: '25%',
+            width: '20%',
             description: '`published`로 바꾸면 공개 목록과 상세 페이지 노출 대상이 됩니다.',
           },
         },
@@ -80,11 +100,46 @@ export const Pages: CollectionConfig = {
           type: 'date',
           label: '게시 일시',
           admin: {
-            width: '25%',
+            width: '20%',
             date: {
               pickerAppearance: 'dayAndTime',
             },
             description: '비워두고 `published`로 저장하면 현재 시각이 자동 입력됩니다.',
+          },
+        },
+        {
+          name: 'featured',
+          type: 'checkbox',
+          label: '상단 고정',
+          defaultValue: false,
+          admin: {
+            width: '20%',
+            description: '체크하면 공개 목록에서 우선 노출됩니다.',
+          },
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'showInList',
+          type: 'checkbox',
+          label: '목록/사이트맵 노출',
+          defaultValue: true,
+          admin: {
+            width: '50%',
+            description: '끄면 상세 URL은 유지하되 공개 목록과 sitemap에서는 제외됩니다.',
+          },
+        },
+        {
+          name: 'sortOrder',
+          type: 'number',
+          label: '수동 정렬 순서',
+          defaultValue: 0,
+          admin: {
+            width: '50%',
+            description: '낮을수록 먼저 노출됩니다. 같으면 featured/publishedAt 기준으로 정렬됩니다.',
           },
         },
       ],

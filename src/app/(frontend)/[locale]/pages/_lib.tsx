@@ -9,6 +9,9 @@ type UnknownRecord = Record<string, unknown>
 export type CmsPage = {
   id: number | string
   slug: string
+  featured?: boolean | null
+  showInList?: boolean | null
+  sortOrder?: number | null
   title_ko?: string | null
   title_en?: string | null
   summary_ko?: string | null
@@ -181,6 +184,9 @@ function coercePage(value: unknown): CmsPage | null {
   return {
     id,
     slug,
+    featured: typeof record?.featured === 'boolean' ? record.featured : null,
+    showInList: typeof record?.showInList === 'boolean' ? record.showInList : null,
+    sortOrder: typeof record?.sortOrder === 'number' ? record.sortOrder : null,
     title_ko: getStringValue(record, ['title_ko']),
     title_en: getStringValue(record, ['title_en']),
     summary_ko: getStringValue(record, ['summary_ko']),
@@ -213,7 +219,28 @@ function coercePage(value: unknown): CmsPage | null {
   }
 }
 
-const getPublishedPagesCached = cache(async (): Promise<CmsPage[]> => {
+function comparePages(a: CmsPage, b: CmsPage): number {
+  const featuredDelta = Number(Boolean(b.featured)) - Number(Boolean(a.featured))
+  if (featuredDelta !== 0) {
+    return featuredDelta
+  }
+
+  const sortOrderA = typeof a.sortOrder === 'number' ? a.sortOrder : 0
+  const sortOrderB = typeof b.sortOrder === 'number' ? b.sortOrder : 0
+  if (sortOrderA !== sortOrderB) {
+    return sortOrderA - sortOrderB
+  }
+
+  const timestampA = new Date(getPageTimestamp(a) ?? 0).getTime()
+  const timestampB = new Date(getPageTimestamp(b) ?? 0).getTime()
+  if (timestampA !== timestampB) {
+    return timestampB - timestampA
+  }
+
+  return a.slug.localeCompare(b.slug)
+}
+
+const getPublishedPagesCached = cache(async (includeHidden: boolean): Promise<CmsPage[]> => {
   const payload = await getPayloadClient()
   const result = await payload.find({
     collection: 'pages',
@@ -227,7 +254,11 @@ const getPublishedPagesCached = cache(async (): Promise<CmsPage[]> => {
     },
   })
 
-  return getDocs(result)
+  const docs = getDocs(result)
+    .filter((page) => includeHidden || page.showInList !== false)
+    .sort(comparePages)
+
+  return docs
 })
 
 const getPublishedPageBySlugCached = cache(async (slug: string): Promise<CmsPage | null> => {
@@ -265,8 +296,10 @@ const getSiteSettingsCached = cache(async (): Promise<UnknownRecord | null> => {
   }
 })
 
-export async function getPublishedPages(): Promise<CmsPage[]> {
-  return getPublishedPagesCached()
+export async function getPublishedPages(
+  options?: { includeHidden?: boolean },
+): Promise<CmsPage[]> {
+  return getPublishedPagesCached(options?.includeHidden === true)
 }
 
 export async function getPublishedPageBySlug(slug: string): Promise<CmsPage | null> {
