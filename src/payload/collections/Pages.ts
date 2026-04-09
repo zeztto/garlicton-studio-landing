@@ -1,4 +1,5 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, GeneratePreviewURL } from 'payload'
+import { buildPagePreviewURL } from '../../lib/preview'
 import { normalizePageSlug } from '../../lib/pages-workflow'
 
 const syncPublishedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
@@ -16,14 +17,62 @@ const syncPublishedAt: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   return nextData
 }
 
+const resolvePagePreviewURL = ({
+  locale,
+  slug,
+}: {
+  locale?: null | string
+  slug?: null | string
+}): null | string => {
+  const normalizedSlug = normalizePageSlug(slug)
+
+  if (!normalizedSlug) {
+    return null
+  }
+
+  return buildPagePreviewURL({
+    locale,
+    slug: normalizedSlug,
+  })
+}
+
+const generatePagePreviewURL: GeneratePreviewURL = (doc, { locale }) => {
+  return resolvePagePreviewURL({
+    locale,
+    slug: typeof doc.slug === 'string' ? doc.slug : null,
+  })
+}
+
 export const Pages: CollectionConfig = {
   slug: 'pages',
   labels: { singular: '페이지', plural: '페이지' },
   admin: {
     group: '📄 콘텐츠',
-    description: '공개 페이지, 공지, 소식성 콘텐츠를 관리합니다. `published` 상태인 문서만 공개 라우트에 노출됩니다.',
+    description: '공개 페이지, 공지, 소식성 콘텐츠를 관리합니다. `published` 상태인 문서만 공개 라우트에 노출되며, 저장된 draft는 preview URL로 검수할 수 있습니다.',
     useAsTitle: 'title_ko',
     defaultColumns: ['title_ko', 'status', 'featured', 'sortOrder', 'publishedAt'],
+    preview: generatePagePreviewURL,
+    livePreview: {
+      url: ({ data, locale }) =>
+        resolvePagePreviewURL({
+          locale: locale.code,
+          slug: typeof data.slug === 'string' ? data.slug : null,
+        }),
+      breakpoints: [
+        {
+          label: 'Mobile',
+          name: 'mobile',
+          width: 390,
+          height: 844,
+        },
+        {
+          label: 'Desktop',
+          name: 'desktop',
+          width: 1440,
+          height: 1024,
+        },
+      ],
+    },
   },
   hooks: {
     beforeChange: [syncPublishedAt],

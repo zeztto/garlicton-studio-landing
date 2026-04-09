@@ -1,4 +1,5 @@
 import { cache, type JSX, type ReactNode } from 'react'
+import { draftMode } from 'next/headers'
 import { getPayloadClient } from '@/lib/payload'
 import {
   comparePublishedPages,
@@ -224,50 +225,74 @@ function coercePage(value: unknown): CmsPage | null {
   }
 }
 
-const getPublishedPagesCached = cache(async (includeHidden: boolean): Promise<CmsPage[]> => {
+const getPagesCached = cache(async (includeHidden: boolean, includeDrafts: boolean): Promise<CmsPage[]> => {
   const payload = await getPayloadClient()
   const result = await payload.find({
     collection: 'pages',
     depth: 1,
     limit: 1000,
     sort: '-updatedAt',
-    where: {
-      status: {
-        equals: 'published',
-      },
-    },
+    ...(includeDrafts
+      ? {}
+      : {
+          where: {
+            status: {
+              equals: 'published',
+            },
+          },
+        }),
   })
 
   const docs = getDocs(result)
+    .filter((page) => includeDrafts || page.status === 'published')
     .filter((page) => shouldIncludePageInList(page, includeHidden))
     .sort(comparePublishedPages)
 
   return docs
 })
 
-const getPublishedPageBySlugCached = cache(async (slug: string): Promise<CmsPage | null> => {
+const getPageBySlugCached = cache(async (slug: string, includeDrafts: boolean): Promise<CmsPage | null> => {
   const payload = await getPayloadClient()
   const result = await payload.find({
     collection: 'pages',
     depth: 1,
     limit: 1,
     where: {
-      and: [
-        {
-          slug: {
-            equals: slug,
-          },
-        },
-        {
-          status: {
-            equals: 'published',
-          },
-        },
-      ],
+      ...(includeDrafts
+        ? {
+            slug: {
+              equals: slug,
+            },
+          }
+        : {
+            and: [
+              {
+                slug: {
+                  equals: slug,
+                },
+              },
+              {
+                status: {
+                  equals: 'published',
+                },
+              },
+            ],
+          }
+      ),
     },
   })
 
-  return getDocs(result)[0] ?? null
+  const page = getDocs(result)[0] ?? null
+
+  if (!page) {
+    return null
+  }
+
+  if (!includeDrafts && page.status !== 'published') {
+    return null
+  }
+
+  return page
 })
 
 const getSiteSettingsCached = cache(async (): Promise<UnknownRecord | null> => {
@@ -283,11 +308,13 @@ const getSiteSettingsCached = cache(async (): Promise<UnknownRecord | null> => {
 export async function getPublishedPages(
   options?: { includeHidden?: boolean },
 ): Promise<CmsPage[]> {
-  return getPublishedPagesCached(options?.includeHidden === true)
+  const { isEnabled } = await draftMode()
+  return getPagesCached(options?.includeHidden === true, isEnabled)
 }
 
 export async function getPublishedPageBySlug(slug: string): Promise<CmsPage | null> {
-  return getPublishedPageBySlugCached(slug)
+  const { isEnabled } = await draftMode()
+  return getPageBySlugCached(slug, isEnabled)
 }
 
 export async function getPagesSiteSettings(): Promise<UnknownRecord | null> {

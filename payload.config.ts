@@ -19,8 +19,33 @@ import { seed } from './src/payload/seed.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dnlcuy2aj'
-const payloadSecret = process.env.PAYLOAD_SECRET || 'development-only-payload-secret'
+const isProduction = process.env.NODE_ENV === 'production'
+const cloudinaryCloudName =
+  process.env.CLOUDINARY_CLOUD_NAME?.trim() ||
+  (isProduction ? undefined : 'dnlcuy2aj')
+const cloudinaryApiKey =
+  process.env.CLOUDINARY_API_KEY?.trim() ||
+  (isProduction ? undefined : '')
+const cloudinaryApiSecret =
+  process.env.CLOUDINARY_API_SECRET?.trim() ||
+  (isProduction ? undefined : '')
+const payloadSecret =
+  process.env.PAYLOAD_SECRET?.trim() ||
+  (isProduction ? undefined : 'development-only-payload-secret')
+
+if (isProduction && (!cloudinaryCloudName || !cloudinaryApiKey || !cloudinaryApiSecret)) {
+  throw new Error(
+    '[payload.config] CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be set in production.',
+  )
+}
+
+const resolvedCloudinaryCloudName = cloudinaryCloudName ?? 'dnlcuy2aj'
+const resolvedCloudinaryApiKey = cloudinaryApiKey ?? ''
+const resolvedCloudinaryApiSecret = cloudinaryApiSecret ?? ''
+
+if (!payloadSecret) {
+  throw new Error('[payload.config] PAYLOAD_SECRET must be set in production.')
+}
 
 export default buildConfig({
   admin: {
@@ -56,15 +81,15 @@ export default buildConfig({
       collections: {
         media: {
           adapter: cloudinaryAdapter({
-            cloudName: cloudinaryCloudName,
-            apiKey: process.env.CLOUDINARY_API_KEY || '',
-            apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+            cloudName: resolvedCloudinaryCloudName,
+            apiKey: resolvedCloudinaryApiKey,
+            apiSecret: resolvedCloudinaryApiSecret,
           }),
           disableLocalStorage: true,
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename }) => {
             const name = filename.replace(/\.[^.]+$/, '') // remove extension
-            return `https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/garlicton/${name}`
+            return `https://res.cloudinary.com/${resolvedCloudinaryCloudName}/image/upload/garlicton/${name}`
           },
         },
       },
