@@ -1,0 +1,14 @@
+services:
+  app:
+    container_name: garlicton-studio-app
+    restart: unless-stopped
+    networks:
+      default:
+      garlicton_gateway:
+        aliases:
+          - garlicton-studio-app
+
+networks:
+  garlicton_gateway:
+    external: true
+    name: garlicton-studio_default

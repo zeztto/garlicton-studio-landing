@@ -1,0 +1,4 @@
+garlicton.com, www.garlicton.com {
+  encode zstd gzip
+  reverse_proxy garlicton-studio-app:3000
+}

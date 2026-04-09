@@ -382,6 +382,17 @@ async function seedSiteSettings(payload: Payload): Promise<void> {
 }
 
 async function seedGallery(payload: Payload): Promise<void> {
+  const hasCloudinaryConfig = Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET,
+  )
+
+  if (!hasCloudinaryConfig) {
+    payload.logger.info('Skipping gallery seed upload because Cloudinary credentials are missing.')
+    return
+  }
+
   payload.logger.info('Seeding gallery images...')
   const galleryImages = [
     { file: 'studio-01.jpg', caption_ko: '스튜디오 장비', caption_en: 'Studio equipment' },

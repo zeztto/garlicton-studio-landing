@@ -25,6 +25,7 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.production
 
 # vercel
 .vercel
@@ -39,12 +40,15 @@ next-env.d.ts
 # database
 *.sqlite
 *.sqlite-journal
+/data/
+/backups/
 
 # uploads
 /public/media
 
 # playwright
 .playwright-mcp/
+.playwright-cli/
 *.jpeg
 
 # specs/plans (development only)

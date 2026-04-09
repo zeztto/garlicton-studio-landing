@@ -1,0 +1,15 @@
+.git
+.gitignore
+.DS_Store
+.next
+.playwright-cli
+.playwright-mcp
+node_modules
+npm-debug.log*
+coverage
+docs/superpowers
+.env
+.env.*
+data
+*.sqlite
+*.sqlite-journal

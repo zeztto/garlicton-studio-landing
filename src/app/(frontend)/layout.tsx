@@ -15,7 +15,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Garlicton Studio',
+  title: '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다',
   description: 'Metal music production studio',
   icons: {
     icon: '/icon.png',

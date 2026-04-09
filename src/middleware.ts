@@ -5,11 +5,18 @@ import { routing } from './i18n/routing'
 const intlMiddleware = createMiddleware(routing)
 
 export default function middleware(request: NextRequest) {
-  // Redirect www to non-www
-  const host = request.headers.get('host') || ''
-  if (host.startsWith('www.')) {
+  const forwardedHost =
+    request.headers.get('x-forwarded-host') ??
+    request.headers.get('host') ??
+    request.nextUrl.host
+  const hostname = forwardedHost.split(':')[0].toLowerCase()
+
+  // Canonicalize the apex domain to www in production.
+  if (hostname === 'garlicton.com') {
     const url = request.nextUrl.clone()
-    url.host = host.replace('www.', '')
+    url.protocol = 'https'
+    url.hostname = 'www.garlicton.com'
+    url.port = ''
     return NextResponse.redirect(url, 301)
   }
 

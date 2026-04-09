@@ -7,12 +7,14 @@ import { StudioGallery } from '@/components/sections/StudioGallery'
 import { Contact } from '@/components/sections/Contact'
 import { getPayloadClient } from '@/lib/payload'
 
+const PAGE_TITLE = '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다'
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const payload = await getPayloadClient()
   const settings = await payload.findGlobal({ slug: 'site-settings', depth: 1 })
 
-  const title = locale === 'ko' ? settings.seo?.metaTitle_ko : settings.seo?.metaTitle_en
+  const title = PAGE_TITLE
   const description = locale === 'ko' ? settings.seo?.metaDescription_ko : settings.seo?.metaDescription_en
   const ogImage = settings.seo?.ogImage as { url?: string } | null
 

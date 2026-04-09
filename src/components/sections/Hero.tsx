@@ -57,14 +57,6 @@ export async function Hero({ locale }: HeroProps) {
       />
 
       <div className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center gap-8">
-        {/* Specialist badge */}
-        <span
-          className="inline-block text-[11px] tracking-[0.3em] uppercase text-[#CCCCCC]"
-          style={{ fontFamily: 'var(--font-inter)' }}
-        >
-          {t('specialist')}
-        </span>
-
         {/* Studio title */}
         <h1
           className="text-[clamp(2.2rem,6vw,5.5rem)] font-bold uppercase leading-none tracking-[0.08em] text-[#F0F0F0]"

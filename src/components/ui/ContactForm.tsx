@@ -21,6 +21,7 @@ declare global {
 
 export function ContactForm({ locale }: { locale: string }) {
   const t = useTranslations('contact')
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? ''
 
   const [formState, setFormState] = useState<FormState>('idle')
   const [name, setName] = useState('')
@@ -41,9 +42,10 @@ export function ContactForm({ locale }: { locale: string }) {
     if (turnstileRendered.current) return
     if (!turnstileContainerRef.current) return
     if (!window.turnstile) return
+    if (!turnstileSiteKey) return
 
     widgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
-      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '',
+      sitekey: turnstileSiteKey,
       callback: (token: string) => {
         setTurnstileToken(token)
       },
@@ -258,11 +260,13 @@ export function ContactForm({ locale }: { locale: string }) {
 
       {/* Turnstile widget */}
       <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="lazyOnload"
         onLoad={renderTurnstile}
       />
-      <div ref={turnstileContainerRef} className="cf-turnstile" />
+      {turnstileSiteKey ? (
+        <div ref={turnstileContainerRef} className="min-h-16" />
+      ) : null}
 
       {/* Submit */}
       <button
