@@ -1,6 +1,7 @@
 import { getPayloadClient } from '@/lib/payload'
 import { StudioGalleryClient } from './StudioGalleryClient'
 import { getLocalizedText } from '@/lib/site-settings'
+import { getResolvedGalleryImages } from '@/lib/gallery-images'
 
 interface StudioGalleryProps {
   locale: string
@@ -23,29 +24,40 @@ interface GalleryItem {
 
 export async function StudioGallery({ locale, content }: StudioGalleryProps) {
   let items: GalleryItem[] = []
+  let images = getResolvedGalleryImages()
 
-  try {
-    const payload = await getPayloadClient()
-    const result = await payload.find({
-      collection: 'gallery',
-      sort: 'sortOrder',
-      limit: 50,
-      depth: 1,
-    })
-    items = result.docs as GalleryItem[]
-  } catch {
-    // Render without gallery on failure
+  if (images.length === 0) {
+    try {
+      const payload = await getPayloadClient()
+      const result = await payload.find({
+        collection: 'gallery',
+        sort: 'sortOrder',
+        limit: 50,
+        depth: 1,
+      })
+      items = result.docs as GalleryItem[]
+    } catch {
+      // Render without gallery on failure
+    }
+
+    images = items
+      .filter((item) => item.image?.url)
+      .map((item) => ({
+        id: item.id,
+        src: item.image!.url!,
+        caption_ko: item.caption_ko,
+        caption_en: item.caption_en,
+        width: item.image?.width ?? undefined,
+        height: item.image?.height ?? undefined,
+      }))
   }
 
-  // Shape images for the client component
-  const images = items
-    .filter((item) => item.image?.url)
-    .map((item) => ({
-      src: item.image!.url!,
-      alt: (locale === 'ko' ? item.caption_ko : item.caption_en) ?? '',
-      width: item.image?.width ?? undefined,
-      height: item.image?.height ?? undefined,
-    }))
+  const galleryImages = images.map((item) => ({
+    src: item.src,
+    alt: (locale === 'ko' ? item.caption_ko : item.caption_en) ?? '',
+    width: item.width ?? undefined,
+    height: item.height ?? undefined,
+  }))
 
   const eyebrow = getLocalizedText(content, 'eyebrow', locale, 'Studio')
   const title = getLocalizedText(content, 'title', locale, 'The Studio')
@@ -169,8 +181,8 @@ export async function StudioGallery({ locale, content }: StudioGalleryProps) {
         </div>
 
         {/* Gallery grid — client component handles lightbox */}
-        {images.length > 0 ? (
-          <StudioGalleryClient images={images} />
+        {galleryImages.length > 0 ? (
+          <StudioGalleryClient images={galleryImages} />
         ) : (
           <div className="text-center py-16">
             <p className="text-[#999999] text-sm">
