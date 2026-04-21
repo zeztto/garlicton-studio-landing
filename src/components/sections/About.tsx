@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { Fragment } from 'react'
 import { getPayloadClient } from '@/lib/payload'
 import { getLocalizedText } from '@/lib/site-settings'
+import { getSafeHref } from '@/lib/url-safety'
 
 interface AboutProps {
   locale: string
@@ -118,9 +119,9 @@ function renderRichTextNode(node: RichTextNode, key: string): React.ReactNode {
         </blockquote>
       )
     case 'link': {
-      const href = node.fields?.url || node.url
+      const href = getSafeHref(node.fields?.url || node.url)
       const isExternal = typeof href === 'string' && /^https?:\/\//.test(href)
-      if (!href) {
+      if (!href || href === '#') {
         return renderRichTextChildren(node.children, key)
       }
       return (

@@ -6,6 +6,7 @@ import {
   normalizeOptionalHref,
   normalizeSectionOrder,
 } from '../../lib/payload-admin.ts'
+import type { HomeSectionKey } from '../../lib/site-settings.ts'
 import { buildHomePreviewURL } from '../../lib/preview.ts'
 
 const localizedTextField = (
@@ -69,7 +70,11 @@ export const SiteSettings: GlobalConfig = {
           const homepageLayout = { ...nextData.homepageLayout } as Record<string, unknown>
           homepageLayout.sectionOrder = normalizeSectionOrder(
             Array.isArray(homepageLayout.sectionOrder)
-              ? (homepageLayout.sectionOrder as Array<{ section?: null | string } | null>)
+              ? (
+                  homepageLayout.sectionOrder as Array<
+                    { section?: null | string } | HomeSectionKey | null | string
+                  >
+                )
               : undefined,
           )
           nextData.homepageLayout = homepageLayout
@@ -140,34 +145,27 @@ export const SiteSettings: GlobalConfig = {
       fields: [
         {
           name: 'sectionOrder',
-          type: 'array',
+          type: 'select',
+          hasMany: true,
           label: '섹션 순서',
           admin: {
             description: 'Hero를 포함한 홈페이지 섹션의 노출 순서를 제어합니다.',
           },
           defaultValue: [
-            { section: 'hero' },
-            { section: 'services' },
-            { section: 'about' },
-            { section: 'portfolio' },
-            { section: 'studio' },
-            { section: 'contact' },
+            'hero',
+            'services',
+            'about',
+            'portfolio',
+            'studio',
+            'contact',
           ],
-          fields: [
-            {
-              name: 'section',
-              type: 'select',
-              required: true,
-              label: '섹션',
-              options: [
-                { label: 'Hero', value: 'hero' },
-                { label: 'Services', value: 'services' },
-                { label: 'About', value: 'about' },
-                { label: 'Portfolio', value: 'portfolio' },
-                { label: 'Studio', value: 'studio' },
-                { label: 'Contact', value: 'contact' },
-              ],
-            },
+          options: [
+            { label: 'Hero', value: 'hero' },
+            { label: 'Services', value: 'services' },
+            { label: 'About', value: 'about' },
+            { label: 'Portfolio', value: 'portfolio' },
+            { label: 'Studio', value: 'studio' },
+            { label: 'Contact', value: 'contact' },
           ],
         },
       ],

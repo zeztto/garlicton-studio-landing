@@ -14,12 +14,14 @@ export function normalizeTrimmedString(value: unknown): string | undefined {
 }
 
 export function normalizeSectionOrder(
-  rows: Array<{ section?: null | string } | null> | null | undefined,
-): Array<{ section: HomeSectionKey }> {
+  rows: Array<{ section?: null | string } | HomeSectionKey | null | string> | null | undefined,
+): HomeSectionKey[] {
   const ordered: HomeSectionKey[] = []
 
   for (const row of rows ?? []) {
-    const candidate = row?.section
+    const candidate = typeof row === 'string'
+      ? row
+      : row?.section
 
     if (!candidate || !HOME_SECTION_SET.has(candidate as HomeSectionKey)) {
       continue
@@ -38,7 +40,7 @@ export function normalizeSectionOrder(
     }
   }
 
-  return ordered.map((section) => ({ section }))
+  return ordered
 }
 
 export function normalizeOptionalHref(

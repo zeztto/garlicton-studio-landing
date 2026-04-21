@@ -60,11 +60,11 @@ export function createNavLink(href: string, label: string): NavLinkItem {
 }
 
 export function getSectionOrder(
-  layout: { sectionOrder?: Array<{ section?: string | null } | null> } | null | undefined,
+  layout: { sectionOrder?: Array<{ section?: string | null } | string | null> } | null | undefined,
 ): HomeSectionKey[] {
   const configured = Array.isArray(layout?.sectionOrder)
     ? layout.sectionOrder
-        .map((item) => item?.section)
+        .map((item) => typeof item === 'string' ? item : item?.section)
         .filter((section): section is HomeSectionKey => DEFAULT_HOME_SECTION_ORDER.includes(section as HomeSectionKey))
     : []
 

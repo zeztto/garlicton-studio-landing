@@ -5,11 +5,18 @@ import { getPreviewAccessError, resolvePreviewRedirectPath } from '@/lib/preview
 
 export async function GET(request: NextRequest) {
   const context = createApiRequestContext(request, 'preview.enable')
-  const accessError = getPreviewAccessError(request.nextUrl.searchParams.get('secret'))
+  const accessError = getPreviewAccessError({
+    anchor: request.nextUrl.searchParams.get('anchor'),
+    expiresAt: request.nextUrl.searchParams.get('expires'),
+    locale: request.nextUrl.searchParams.get('locale'),
+    path: request.nextUrl.searchParams.get('path'),
+    slug: request.nextUrl.searchParams.get('slug'),
+    token: request.nextUrl.searchParams.get('token'),
+  })
   if (accessError) {
     const errorCode = accessError.status === 503
       ? 'preview_not_configured'
-      : 'preview_invalid_secret'
+      : 'preview_invalid_token'
 
     logApiEvent('warn', context, 'preview.access_denied', {
       code: errorCode,

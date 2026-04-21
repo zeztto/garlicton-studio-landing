@@ -26,6 +26,14 @@ export function cloudinaryAdapter({
   return (): GeneratedAdapter => ({
     name: 'cloudinary',
 
+    generateURL: ({ data, filename }) => {
+      if (typeof data?.url === 'string' && data.url.trim()) {
+        return data.url
+      }
+
+      return `https://res.cloudinary.com/${cloudName}/image/upload/${filename}`
+    },
+
     handleUpload: async ({ data, file: rawFile }) => {
       const file = rawFile as unknown as { data: Buffer; name: string; mimetype: string; size: number }
       const ext = path.extname(file.name || '').replace('.', '')

@@ -7,6 +7,7 @@ import {
   getErrorSummary,
   logApiEvent,
 } from '@/lib/api-runtime'
+import { shouldAcknowledgeContactSubmission } from '@/lib/contact-delivery'
 import { verifyTurnstileToken } from '@/lib/turnstile'
 import { getPayloadClient } from '@/lib/payload'
 
@@ -265,6 +266,17 @@ export async function POST(req: NextRequest) {
     inquirySaved,
     serviceCount: normalizedServices.length,
   })
+
+  if (!shouldAcknowledgeContactSubmission({ inquirySaved, emailSent })) {
+    logApiEvent('error', context, 'contact.delivery_failed', {
+      emailConfigured: Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
+    })
+    return createErrorResponse(context, {
+      code: 'contact_delivery_failed',
+      message: 'Your inquiry could not be delivered. Please try again shortly.',
+      status: 503,
+    })
+  }
 
   return createSuccessResponse(context)
 }

@@ -638,14 +638,7 @@ async function seedSiteSettings(payload: Payload): Promise<void> {
         metaDescription_en: 'Published CMS pages from Garlicton Studio.',
       },
       homepageLayout: {
-        sectionOrder: [
-          { section: 'hero' },
-          { section: 'services' },
-          { section: 'about' },
-          { section: 'portfolio' },
-          { section: 'studio' },
-          { section: 'contact' },
-        ],
+        sectionOrder: ['hero', 'services', 'about', 'portfolio', 'studio', 'contact'] as any,
       },
       hero: {
         visible: true,

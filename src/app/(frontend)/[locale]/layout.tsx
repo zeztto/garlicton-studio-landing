@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
+import { Oswald, Inter } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales } from '@/i18n/config'
 import { getPayloadClient } from '@/lib/payload'
+import { SITE_URL } from '@/lib/site'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import {
@@ -15,6 +18,29 @@ import {
   type HomeSectionKey,
   type NavLinkItem,
 } from '@/lib/site-settings'
+import '../frontend.css'
+
+const oswald = Oswald({
+  subsets: ['latin'],
+  variable: '--font-oswald',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: '갈릭톤 스튜디오 | 최고의 테이크가 최고의 결과를 만든다',
+  description: 'Metal music production studio',
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-icon.png',
+  },
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -78,10 +104,14 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <Navbar siteName={siteName} homeHref={homeHref} navLinks={navLinks} />
-      <main>{children}</main>
-      <Footer />
-    </NextIntlClientProvider>
+    <html lang={locale} className={`${oswald.variable} ${inter.variable}`} style={{ scrollBehavior: 'smooth' }}>
+      <body className="antialiased">
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Navbar siteName={siteName} homeHref={homeHref} navLinks={navLinks} />
+          <main>{children}</main>
+          <Footer />
+        </NextIntlClientProvider>
+      </body>
+    </html>
   )
 }

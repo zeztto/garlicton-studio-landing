@@ -9,7 +9,7 @@ import {
   getRequestIdFromHeaders,
 } from '../src/lib/api-runtime'
 
-test('request context reuses upstream request id and client ip headers', async () => {
+test('request context trusts the first forwarded client hop from the proxy chain', async () => {
   const request = new Request('https://www.garlicton.com/api/contact', {
     headers: {
       'x-forwarded-for': '203.0.113.10, 10.0.0.1',
@@ -27,6 +27,14 @@ test('request context reuses upstream request id and client ip headers', async (
   assert.equal(context.method, 'POST')
   assert.equal(context.path, '/api/contact')
   assert.equal(typeof context.clientIpFingerprint, 'string')
+})
+
+test('request context falls back to unknown when forwarded headers are missing', async () => {
+  const request = new Request('https://www.garlicton.com/api/contact', {
+    method: 'POST',
+  })
+
+  assert.equal(getClientIpFromHeaders(request.headers), 'unknown')
 })
 
 test('success and error responses expose request ids in body and headers', async () => {

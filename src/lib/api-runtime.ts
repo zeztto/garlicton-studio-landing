@@ -33,10 +33,17 @@ export const getClientIpFromHeaders = (headers: HeadersLike): string => {
   const forwardedFor = headers.get('x-forwarded-for')
 
   if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim()
+    const forwardedChain = forwardedFor
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean)
+
+    if (forwardedChain.length > 0) {
+      return forwardedChain[0]
+    }
   }
 
-  return headers.get('x-real-ip')?.trim() || 'unknown'
+  return 'unknown'
 }
 
 const getClientIpFingerprint = (clientIp: string): string => {

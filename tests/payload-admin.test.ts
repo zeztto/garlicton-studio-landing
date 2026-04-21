@@ -20,17 +20,17 @@ test('normalizeSectionOrder deduplicates configured sections and backfills missi
   assert.deepEqual(
     normalizeSectionOrder([
       { section: 'about' },
+      'contact',
       { section: 'about' },
-      { section: 'contact' },
       { section: 'invalid' },
     ]),
     [
-      { section: 'about' },
-      { section: 'contact' },
-      { section: 'hero' },
-      { section: 'services' },
-      { section: 'portfolio' },
-      { section: 'studio' },
+      'about',
+      'contact',
+      'hero',
+      'services',
+      'portfolio',
+      'studio',
     ],
   )
 })

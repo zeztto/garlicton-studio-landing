@@ -1,4 +1,4 @@
-import { timingSafeEqual } from 'node:crypto'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { normalizePageSlug } from './pages-workflow.ts'
 import { DEFAULT_HOME_SECTION_ORDER, type HomeSectionKey } from './site-settings.ts'
 import { getPreviewSecret, getSiteUrl } from './runtime-config.ts'
@@ -6,6 +6,7 @@ import { getPreviewSecret, getSiteUrl } from './runtime-config.ts'
 const DEFAULT_PAGE_PREVIEW_LOCALE = 'ko'
 const PAGE_PREVIEW_ROUTE = '/api/preview'
 const HOME_SECTION_SET = new Set<HomeSectionKey>(DEFAULT_HOME_SECTION_ORDER)
+const PREVIEW_TOKEN_TTL_MS = 10 * 60 * 1000
 
 export type PagePreviewLocale = 'ko' | 'en'
 
@@ -13,36 +14,125 @@ export const normalizePreviewLocale = (locale?: null | string): PagePreviewLocal
   return locale === 'en' ? 'en' : DEFAULT_PAGE_PREVIEW_LOCALE
 }
 
-export const isValidPreviewSecret = (candidate?: null | string): boolean => {
+function buildPreviewTokenPayload({
+  anchor,
+  expiresAt,
+  locale,
+  path,
+  slug,
+}: {
+  anchor?: null | string
+  expiresAt: string
+  locale?: null | string
+  path?: null | string
+  slug?: null | string
+}): string {
+  return JSON.stringify({
+    anchor: normalizeHomePreviewAnchor(anchor),
+    expiresAt,
+    locale: normalizePreviewLocale(locale),
+    path: path && /^\/(?!\/)/.test(path) ? path : '',
+    slug: typeof slug === 'string' ? normalizePageSlug(slug) ?? '' : '',
+  })
+}
+
+function signPreviewPayload(payload: string, secret: string): string {
+  return createHmac('sha256', secret).update(payload).digest('hex')
+}
+
+function getPreviewToken({
+  anchor,
+  locale,
+  path,
+  slug,
+}: {
+  anchor?: null | string
+  locale?: null | string
+  path?: null | string
+  slug?: null | string
+}): null | { expiresAt: string; token: string } {
   const secret = getPreviewSecret()
 
-  if (!secret || !candidate) {
-    return false
+  if (!secret) {
+    return null
   }
 
-  const candidateBuffer = Buffer.from(candidate, 'utf8')
-  const secretBuffer = Buffer.from(secret, 'utf8')
+  const expiresAt = new Date(Date.now() + PREVIEW_TOKEN_TTL_MS).toISOString()
+  const payload = buildPreviewTokenPayload({
+    anchor,
+    expiresAt,
+    locale,
+    path,
+    slug,
+  })
 
-  if (candidateBuffer.length !== secretBuffer.length) {
-    return false
+  return {
+    expiresAt,
+    token: signPreviewPayload(payload, secret),
   }
-
-  return timingSafeEqual(candidateBuffer, secretBuffer)
 }
 
 export const getPreviewAccessError = (
-  candidate?: null | string,
+  {
+    anchor,
+    expiresAt,
+    locale,
+    path,
+    slug,
+    token,
+  }: {
+    anchor?: null | string
+    expiresAt?: null | string
+    locale?: null | string
+    path?: null | string
+    slug?: null | string
+    token?: null | string
+  },
 ): null | { error: string; status: number } => {
-  if (!getPreviewSecret()) {
+  const secret = getPreviewSecret()
+
+  if (!secret) {
     return {
       error: 'Preview secret is not configured.',
       status: 503,
     }
   }
 
-  if (!isValidPreviewSecret(candidate)) {
+  if (!token || !expiresAt) {
     return {
-      error: 'Invalid preview secret.',
+      error: 'Invalid preview token.',
+      status: 401,
+    }
+  }
+
+  const expiresDate = new Date(expiresAt)
+  if (Number.isNaN(expiresDate.getTime()) || expiresDate.getTime() <= Date.now()) {
+    return {
+      error: 'Preview token has expired.',
+      status: 401,
+    }
+  }
+
+  const expectedToken = signPreviewPayload(
+    buildPreviewTokenPayload({
+      anchor,
+      expiresAt,
+      locale,
+      path,
+      slug,
+    }),
+    secret,
+  )
+
+  const candidateBuffer = Buffer.from(token, 'utf8')
+  const expectedBuffer = Buffer.from(expectedToken, 'utf8')
+
+  if (
+    candidateBuffer.length !== expectedBuffer.length
+    || !timingSafeEqual(candidateBuffer, expectedBuffer)
+  ) {
+    return {
+      error: 'Invalid preview token.',
       status: 401,
     }
   }
@@ -125,9 +215,14 @@ export const buildPagePreviewURL = ({
   locale?: null | string
   slug: string
 }): null | string => {
-  const secret = getPreviewSecret()
+  const path = buildPagePath({ locale, slug })
+  const previewToken = getPreviewToken({
+    locale,
+    path,
+    slug,
+  })
 
-  if (!secret) {
+  if (!previewToken) {
     return null
   }
 
@@ -135,9 +230,10 @@ export const buildPagePreviewURL = ({
 
   previewURL.searchParams.set('collection', 'pages')
   previewURL.searchParams.set('locale', normalizePreviewLocale(locale))
-  previewURL.searchParams.set('path', buildPagePath({ locale, slug }))
-  previewURL.searchParams.set('secret', secret)
+  previewURL.searchParams.set('path', path)
+  previewURL.searchParams.set('expires', previewToken.expiresAt)
   previewURL.searchParams.set('slug', slug)
+  previewURL.searchParams.set('token', previewToken.token)
 
   return previewURL.toString()
 }
@@ -149,17 +245,23 @@ export const buildHomePreviewURL = ({
   anchor?: null | string
   locale?: null | string
 } = {}): null | string => {
-  const secret = getPreviewSecret()
+  const path = buildHomePath({ anchor, locale })
+  const previewToken = getPreviewToken({
+    anchor,
+    locale,
+    path,
+  })
 
-  if (!secret) {
+  if (!previewToken) {
     return null
   }
 
   const previewURL = new URL(PAGE_PREVIEW_ROUTE, getSiteUrl())
 
   previewURL.searchParams.set('locale', normalizePreviewLocale(locale))
-  previewURL.searchParams.set('path', buildHomePath({ anchor, locale }))
-  previewURL.searchParams.set('secret', secret)
+  previewURL.searchParams.set('expires', previewToken.expiresAt)
+  previewURL.searchParams.set('path', path)
+  previewURL.searchParams.set('token', previewToken.token)
 
   const safeAnchor = normalizeHomePreviewAnchor(anchor)
 

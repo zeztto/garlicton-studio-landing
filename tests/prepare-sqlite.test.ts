@@ -62,7 +62,7 @@ function createCompleteSiteSettings() {
       siteName: 'GARLICTON RECORDING STUDIO',
     },
     homepageLayout: {
-      sectionOrder: [{ section: 'hero' }],
+      sectionOrder: ['hero'],
     },
     contactForm: {
       nameLabel_ko: '이름',

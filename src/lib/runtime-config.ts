@@ -1,5 +1,6 @@
 const DEFAULT_SITE_URL = 'https://www.garlicton.com'
 const DEVELOPMENT_CLOUDINARY_CLOUD_NAME = 'dnlcuy2aj'
+const BUILD_PAYLOAD_SECRET = 'build-only-payload-secret'
 const DEVELOPMENT_PAYLOAD_SECRET = 'development-only-payload-secret'
 
 export type CloudinaryRuntimeConfig = {
@@ -16,6 +17,7 @@ const getTrimmedEnv = (name: string): string | undefined => {
 }
 
 export const isProductionRuntime = (): boolean => process.env.NODE_ENV === 'production'
+export const isBuildRuntime = (): boolean => process.env.NEXT_PHASE === 'phase-production-build'
 
 export const getSiteUrl = (): string => {
   return getTrimmedEnv('NEXT_PUBLIC_SITE_URL')?.replace(/\/+$/, '') || DEFAULT_SITE_URL
@@ -30,6 +32,10 @@ export const getPayloadSecret = (): null | string => {
 
   if (configuredSecret) {
     return configuredSecret
+  }
+
+  if (isBuildRuntime()) {
+    return BUILD_PAYLOAD_SECRET
   }
 
   return isProductionRuntime() ? null : DEVELOPMENT_PAYLOAD_SECRET
@@ -50,11 +56,14 @@ export const getCloudinaryRuntimeConfig = (): CloudinaryRuntimeConfig => {
   const apiKey = getTrimmedEnv('CLOUDINARY_API_KEY')
   const apiSecret = getTrimmedEnv('CLOUDINARY_API_SECRET')
   const configured = Boolean(cloudName && apiKey && apiSecret)
+  const fallbackCloudName = isProductionRuntime() && !isBuildRuntime()
+    ? ''
+    : DEVELOPMENT_CLOUDINARY_CLOUD_NAME
 
   return {
     apiKey: apiKey ?? '',
     apiSecret: apiSecret ?? '',
-    cloudName: cloudName ?? (isProductionRuntime() ? '' : DEVELOPMENT_CLOUDINARY_CLOUD_NAME),
+    cloudName: cloudName ?? fallbackCloudName,
     configured,
   }
 }
@@ -66,7 +75,7 @@ export const hasCloudinaryRuntimeConfig = (): boolean => {
 export const requireCloudinaryRuntimeConfig = (context: string): CloudinaryRuntimeConfig => {
   const config = getCloudinaryRuntimeConfig()
 
-  if (isProductionRuntime() && !config.configured) {
+  if (isProductionRuntime() && !isBuildRuntime() && !config.configured) {
     throw new Error(
       `[${context}] CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be set in production.`,
     )

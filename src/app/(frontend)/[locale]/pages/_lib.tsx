@@ -7,6 +7,7 @@ import {
   shouldIncludePageInList,
 } from '@/lib/pages-workflow'
 import { getLocalizedText } from '@/lib/site-settings'
+import { getSafeHref } from '@/lib/url-safety'
 
 export type Locale = 'ko' | 'en'
 
@@ -550,17 +551,24 @@ function renderNode(node: LexicalNode, locale: Locale, key: string): ReactNode |
     case 'linebreak':
       return <br key={key} />
     case 'link':
+      {
+        const href = getSafeHref(node.fields?.url ?? node.url)
+        if (href === '#') {
+          return renderInlineChildren(node.children, locale, key)
+        }
+
       return (
         <a
           key={key}
-          href={node.fields?.url ?? node.url ?? '#'}
+          href={href}
           className="text-[#F0F0F0] underline underline-offset-4 transition-colors hover:text-white"
-          target="_blank"
-          rel="noreferrer"
+          target={/^https?:\/\//.test(href) ? '_blank' : undefined}
+          rel={/^https?:\/\//.test(href) ? 'noreferrer' : undefined}
         >
           {renderInlineChildren(node.children, locale, key)}
         </a>
       )
+      }
     case 'text':
       return renderTextNode(node, key)
     default:
